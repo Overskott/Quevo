@@ -1,9 +1,6 @@
 import random
 
 class CircuitGenerator(object):
-
-    
-
     """ Generates a string of 3*number_of_gates length number representing gate types and position in a quantum circuit """
 
     def __init__(self, number_of_gates):
@@ -30,7 +27,7 @@ class CircuitGenerator(object):
                     self.integer_string[int_index+2]=0 # TODO - hardcoded
                 elif (self.integer_string[int_index+1]== 2):
                     self.integer_string[int_index+2]=random.randrange(0,2)
-        print(self.integer_string)
+        #print(self.integer_string)
 
 
         return self.integer_string

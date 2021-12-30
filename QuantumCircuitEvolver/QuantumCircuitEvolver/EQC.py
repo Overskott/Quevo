@@ -58,4 +58,8 @@ class CircuitGenerator(object):
 
 
 
+class CnotGate:
 
+
+    def __init__(self):
+        pass

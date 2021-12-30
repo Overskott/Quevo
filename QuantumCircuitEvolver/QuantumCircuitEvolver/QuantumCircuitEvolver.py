@@ -22,7 +22,7 @@ def runCircuit(circuit, number_of_shots):
 
 # Main
 qubits = 3 # Do not change
-number_of_gates = 14
+number_of_gates = 10
 number_of_shots = 1024
 starting_states_CA = [[0,0,0],
                      [0,0,1],
@@ -36,7 +36,7 @@ starting_states_CA = [[0,0,0],
 
 desired_outcome = [0, 0, 1, 1 ,0 ,1 , 0, 1]
 
-for i in range(10):
+for i in range(100):
     print('run' + str(i) + ': ')
     index = 0
 
@@ -66,7 +66,7 @@ for i in range(10):
         do = desired_outcome[index]
     
         if(str(do) in counts):
-            point=(number_of_shots - counts[str(do)])/10
+            point=(counts[str(do)]/number_of_shots)*100
             #print(point)
         else:
             point= 100

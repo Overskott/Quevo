@@ -12,7 +12,7 @@ class CircuitGenerator(object):
         self.number_of_gates = number_of_gates
         self.string_length = number_of_gates * 3
         self.circuit = QuantumCircuit(3, 1)
-        self.shots = 1000
+        self.shots = 2048
 
     def set_gate_string(self, string_list):
         self.gate_string = string_list
@@ -29,7 +29,7 @@ class CircuitGenerator(object):
         for i in range(0, int(self.string_length / 3)):
             int_index = i * 3
 
-            if ((self.gate_string[int_index] == 0 or self.gate_string[int_index] == 4) and
+            if ((self.gate_string[int_index] in [0, 3, 4]) and
                     self.gate_string[int_index + 1] == self.gate_string[int_index + 2]):
 
                 if self.gate_string[int_index + 1] == 0:
@@ -60,7 +60,7 @@ class CircuitGenerator(object):
             elif a == 2:
                 self.circuit.h(b)
             elif a == 3:
-                self.circuit.y(b)
+                self.circuit.z(b)
             elif a == 4:
                 theta = random.uniform(0, 2*math.pi)
                 self.circuit.rzz(theta=theta, qubit1=b, qubit2=c)
@@ -88,19 +88,23 @@ class CircuitGenerator(object):
         job = aer_sim.run(qobj)
         counts = job.result().get_counts()
 
-        print("Desired outcome: " + str(desired_outcome))
+        print("Desired outcome for one: " + str(desired_outcome))
 
-        if str(desired_outcome) in counts:
-            # error = (counts[str(desired_outcome)] / self.shots) * 100
-            error = (self.shots - counts[str(desired_outcome)]) / self.shots * 100
+        chance_of_one = 0
+
+        if '0' in counts:
+            chance_of_one = (self.shots - counts['0']) / self.shots
             print("Outcome: " + str(counts))
-            print(error)
-
+            error = abs(desired_outcome-chance_of_one)
         else:
-            error = 100
+            chance_of_one = 1
             print("Outcome: " + str(1 - desired_outcome))
-            print(error)
+            error = 1
+        print("error: " + str(error))
+        print()
         return error
+
+        print("Chance of one: " + str(chance_of_one))
 
     def draw_circuit(self):
         print(self.circuit.draw(output='text'))

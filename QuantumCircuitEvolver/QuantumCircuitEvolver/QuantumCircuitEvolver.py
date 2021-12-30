@@ -15,6 +15,7 @@ if __name__ == '__main__':
     desired_outcome = [1, 0, 1, 0, 0, 1, 0, 1]
 
     for i in range(number_of_chromosomes):
+        print("---------")
         print('run' + str(i) + ': ')
         sum_of_runs = 0
 
@@ -32,4 +33,8 @@ if __name__ == '__main__':
             sum_of_runs = sum_of_runs + error
             index = index + 1
 
-        print(sum_of_runs)
+        print("Total run " + str(i) + " : " + str(sum_of_runs))
+        print("---------")
+        print(" ")
+
+

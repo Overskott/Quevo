@@ -11,7 +11,7 @@ class CircuitGenerator(object):
         self.number_of_gates = number_of_gates
         self.string_length = number_of_gates * 3
         self.circuit = QuantumCircuit(3, 1)
-        self.shots = 1024
+        self.shots = 1000
 
     def generate_gate_string(self):
         # Returns a randomly generated string representation of given number of qbits
@@ -60,7 +60,7 @@ class CircuitGenerator(object):
 
         self.circuit.measure(0, 0)
 
-    def get_gates_String(self):
+    def get_gates_string(self):
         return self.integer_string
 
     def initialize_initial_states(self, triplet):
@@ -81,9 +81,17 @@ class CircuitGenerator(object):
         job = aer_sim.run(qobj)
         counts = job.result().get_counts()
 
+        print("Desired outcome: " + str(desired_outcome))
+
         if str(desired_outcome) in counts:
-            error = (counts[str(desired_outcome)] / self.shots) * 100
+            # error = (counts[str(desired_outcome)] / self.shots) * 100
+            error = (self.shots - counts[str(desired_outcome)]) / self.shots * 100
+            print("Outcome: " + str(counts))
+            print(error)
+
         else:
             error = 100
-
+            print("Outcome: " + str(1-desired_outcome))
+            print(error)
         return error
+

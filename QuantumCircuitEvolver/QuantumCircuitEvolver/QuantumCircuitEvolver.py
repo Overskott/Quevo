@@ -1,79 +1,35 @@
-import numpy as np
-from qiskit import *
-from qiskit.providers.aer import AerSimulator
 import EQC
 
-def initializeCAstates(triplet):
-    
-    if (triplet[0]==1):
-        circuit.x(0)
-    if (triplet[1]==1):
-        circuit.x(1)
-    if (triplet[2]==1):
-        circuit.x(2)
+if __name__ == '__main__':
+    number_of_gates = 10
+    number_of_chromosomes = 10
+    starting_states_CA = [[0, 0, 0],
+                          [0, 0, 1],
+                          [0, 1, 0],
+                          [0, 1, 1],
+                          [1, 0, 0],
+                          [1, 0, 1],
+                          [1, 1, 0],
+                          [1, 1, 1]]
 
-def runCircuit(circuit, number_of_shots):
-    aer_sim = Aer.get_backend('aer_simulator')
-    qobj = assemble(circuit, shots=number_of_shots)
-    job = aer_sim.run(qobj)
-    counts = job.result().get_counts()
+    desired_outcome = [1, 0, 1, 0, 0, 1, 0, 1]
 
-    print(counts)
+    for i in range(number_of_chromosomes):
+        print('run' + str(i) + ': ')
+        sum_of_runs = 0
 
-# Main
-qubits = 3 # Do not change
-number_of_gates = 10
-number_of_shots = 1024
-starting_states_CA = [[0,0,0],
-                     [0,0,1],
-                     [0,1,0],
-                     [0,1,1],
-                     [1,0,0],
-                     [1,0,1],
-                     [1,1,0],
-                     [1,1,1]]
+        generated_circuit = EQC.CircuitGenerator(number_of_gates)
+        generated_circuit.generate_gate_string()
+        index = 0
 
+        for triplet in starting_states_CA:
 
-desired_outcome = [0, 0, 1, 1 ,0 ,1 , 0, 1]
+            generated_circuit.generate_gate_string()
+            generated_circuit.initialize_initial_states(triplet)
+            generated_circuit.generate_circuit_from_string()
+            error = generated_circuit.calculate_error(desired_outcome[index])
 
-for i in range(100):
-    print('run' + str(i) + ': ')
-    index = 0
+            sum_of_runs = sum_of_runs + error
+            index = index + 1
 
-    sum_of_runs= 0
-
-    randomStringGenerator = EQC.CircuitGenerator(number_of_gates)
-
-    gateStringRepresentation = randomStringGenerator.generateGateString()
-
-    for triplet in starting_states_CA:
-        # Initialize circuit
-        circuit = QuantumCircuit(qubits,1)
-    
-        initializeCAstates(triplet)
-    
-        randomStringGenerator.generateCircuitFromString(circuit)
-    
-        #runCircuit(circuit, number_of_shots)
-
-        aer_sim = Aer.get_backend('aer_simulator')
-        qobj = assemble(circuit, shots=number_of_shots)
-        job = aer_sim.run(qobj)
-        counts = job.result().get_counts()
-
-        #print(counts)
-        #print(index)
-        do = desired_outcome[index]
-    
-        if(str(do) in counts):
-            point=(counts[str(do)]/number_of_shots)*100
-            #print(point)
-        else:
-            point= 100
-            #print(100)
-
-
-        index = index + 1
-        sum_of_runs = sum_of_runs + point
-    
-    print(sum_of_runs)
+        print(sum_of_runs)

@@ -1,8 +1,8 @@
 import EQC
 
 if __name__ == '__main__':
-    number_of_gates = 20
-    number_of_chromosomes = 10
+    number_of_gates = 5
+    number_of_chromosomes = 2
     starting_states_CA = [[0, 0, 0],
                           [0, 0, 1],
                           [0, 1, 0],
@@ -54,6 +54,16 @@ if __name__ == '__main__':
     circuit.set_gate_string(best_circuit)
     circuit.generate_circuit_from_string()
     circuit.draw_circuit()
+
+    circuit.mutate_gate_string()
+    circuit.generate_circuit_from_string()
+    print(circuit.get_gates_string())
+    circuit.draw_circuit()
+
+
+
+
+
 
 
 

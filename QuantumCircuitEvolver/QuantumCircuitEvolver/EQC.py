@@ -7,45 +7,47 @@ class CircuitGenerator(object):
     circuit """
 
     def __init__(self, number_of_gates):
-        self.integer_string = []
+        self.gate_string = []
         self.number_of_gates = number_of_gates
         self.string_length = number_of_gates * 3
         self.circuit = QuantumCircuit(3, 1)
         self.shots = 1000
+
+    def set_gate_string(self, string_list):
+        self.gate_string = string_list
 
     def generate_gate_string(self):
         # Returns a randomly generated string representation of given number of qbits
 
         for i in range(self.string_length):
             if i % 3 == 0:
-                self.integer_string.append(random.randrange(0, 5))
+                self.gate_string.append(random.randrange(0, 5))
             else:
-                self.integer_string.append(random.randrange(0, 3))
+                self.gate_string.append(random.randrange(0, 3))
 
         for i in range(0, int(self.string_length / 3)):
             int_index = i * 3
 
-            if (self.integer_string[int_index] == 0 and self.integer_string[int_index + 1] == self.integer_string[
-                int_index + 2]):
-                if self.integer_string[int_index + 1] == 0:
-                    self.integer_string[int_index + 1] = random.randrange(1, 3)
-                elif self.integer_string[int_index + 1] == 1:
-                    self.integer_string[int_index + 2] = 0  # TODO - hardcoded
-                elif self.integer_string[int_index + 1] == 2:
-                    self.integer_string[int_index + 2] = random.randrange(0, 2)
-        # print(self.integer_string)
+            if (self.gate_string[int_index] == 0 and
+                    self.gate_string[int_index + 1] == self.gate_string[int_index + 2]):
+                if self.gate_string[int_index + 1] == 0:
+                    self.gate_string[int_index + 1] = random.randrange(1, 3)
+                elif self.gate_string[int_index + 1] == 1:
+                    self.gate_string[int_index + 2] = 0  # TODO - hardcoded
+                elif self.gate_string[int_index + 1] == 2:
+                    self.gate_string[int_index + 2] = random.randrange(0, 2)
 
-        return self.integer_string
+        return self.gate_string
 
-    def generate_circuit_from_string(self):
+    def generate_circuit_from_string(self, string_list=None):
         # Parsing integer string and converting it to gates
 
         for i in range(0, int(self.string_length / 3)):
             gate_index = i * 3
 
-            a = self.integer_string[gate_index]
-            b = self.integer_string[gate_index + 1]
-            c = self.integer_string[gate_index + 2]
+            a = self.gate_string[gate_index]
+            b = self.gate_string[gate_index + 1]
+            c = self.gate_string[gate_index + 2]
 
             if a == 0:
                 self.circuit.cx(b, c)
@@ -61,7 +63,7 @@ class CircuitGenerator(object):
         self.circuit.measure(0, 0)
 
     def get_gates_string(self):
-        return self.integer_string
+        return self.gate_string
 
     def initialize_initial_states(self, triplet):
         if triplet[0] == 1:
@@ -91,7 +93,9 @@ class CircuitGenerator(object):
 
         else:
             error = 100
-            print("Outcome: " + str(1-desired_outcome))
+            print("Outcome: " + str(1 - desired_outcome))
             print(error)
         return error
 
+    def draw_circuit(self):
+        print(self.circuit.draw(output='text'))

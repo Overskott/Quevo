@@ -1,3 +1,4 @@
+import math
 import random
 from qiskit import *
 
@@ -28,21 +29,24 @@ class CircuitGenerator(object):
         for i in range(0, int(self.string_length / 3)):
             int_index = i * 3
 
-            if (self.gate_string[int_index] == 0 and
+            if ((self.gate_string[int_index] == 0 or self.gate_string[int_index] == 4) and
                     self.gate_string[int_index + 1] == self.gate_string[int_index + 2]):
+
                 if self.gate_string[int_index + 1] == 0:
                     self.gate_string[int_index + 1] = random.randrange(1, 3)
+
                 elif self.gate_string[int_index + 1] == 1:
                     self.gate_string[int_index + 2] = 0  # TODO - hardcoded
+
                 elif self.gate_string[int_index + 1] == 2:
                     self.gate_string[int_index + 2] = random.randrange(0, 2)
 
         return self.gate_string
 
-    def generate_circuit_from_string(self, string_list=None):
+    def generate_circuit_from_string(self):
         # Parsing integer string and converting it to gates
 
-        for i in range(0, int(self.string_length / 3)):
+        for i in range(0, self.number_of_gates):
             gate_index = i * 3
 
             a = self.gate_string[gate_index]
@@ -58,7 +62,8 @@ class CircuitGenerator(object):
             elif a == 3:
                 self.circuit.y(b)
             elif a == 4:
-                self.circuit.z(b)
+                theta = random.uniform(0, 2*math.pi)
+                self.circuit.rzz(theta=theta, qubit1=b, qubit2=c)
 
         self.circuit.measure(0, 0)
 

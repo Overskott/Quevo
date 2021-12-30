@@ -2,7 +2,7 @@ import EQC
 from qiskit import *
 
 if __name__ == '__main__':
-    number_of_gates = 10
+    number_of_gates = 16
     number_of_chromosomes = 10
     starting_states_CA = [[0, 0, 0],
                           [0, 0, 1],
@@ -43,13 +43,15 @@ if __name__ == '__main__':
         if sum_of_runs < best_outcome:
             best_outcome = sum_of_runs
             best_circuit.clear()
-            #print(generated_circuit.get_gates_string())
             best_circuit = generated_circuit.get_gates_string()
 
     print("best result: " + str(best_outcome))
     print(best_circuit)
+    print("")
 
-    circuit = EQC.CircuitGenerator(3)
+
+    print("Visulaising best circuit: ")
+    circuit = EQC.CircuitGenerator(number_of_gates)
     circuit.set_gate_string(best_circuit)
     circuit.generate_circuit_from_string()
     circuit.draw_circuit()

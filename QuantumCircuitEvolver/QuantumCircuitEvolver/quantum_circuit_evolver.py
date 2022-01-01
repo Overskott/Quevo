@@ -8,14 +8,11 @@ class CircuitGenerator(object):
     circuit """
 
     def __init__(self, number_of_gates):
-        self.gate_string = []
+        self.gate_string = CircuitString.get_gates_string()
         self.number_of_gates = number_of_gates
         self.string_length = number_of_gates * 3
         self.circuit = QuantumCircuit(3, 1)
         self.shots = 2048
-
-    def set_gate_string(self, string_list):
-        self.gate_string = string_list
 
     def generate_gate_string(self):
         # Returns a randomly generated string representation of given number of qbits
@@ -43,6 +40,8 @@ class CircuitGenerator(object):
 
         return self.gate_string
 
+
+
     def generate_circuit_from_string(self):
         # Parsing integer string and converting it to gates
         self.circuit = QuantumCircuit(3, 1)
@@ -63,18 +62,16 @@ class CircuitGenerator(object):
             elif a == 3:
                 self.circuit.z(b)
             elif a == 4:
-                # theta = random.uniform(0, 2 * math.pi)
-                theta = 3*math.pi/2
+                theta = random.uniform(0, 2 * math.pi)
+                # theta = 3*math.pi/2
                 self.circuit.rzz(theta=theta, qubit1=b, qubit2=c)
             elif a == 5:
-                # theta = random.uniform(0, 2 * math.pi)
-                theta = 3 * math.pi / 2
+                theta = random.uniform(0, 2 * math.pi)
+                # theta = 3 * math.pi / 2
                 self.circuit.rxx(theta=theta, qubit1=b, qubit2=c)
 
         self.circuit.measure(0, 0)
 
-    def get_gates_string(self):
-        return self.gate_string
 
     def initialize_initial_states(self, triplet):
         if triplet[0] == 1:
@@ -130,3 +127,39 @@ class CircuitGenerator(object):
 
             elif self.gate_string[random_index + 1] == 2:
                 self.gate_string[random_index + 2] = random.randrange(0, 2)
+
+class CircuitString(object):
+
+    def __init__(self):
+        self.gate_string = []
+        self.string_length = len(self.gate_string)
+
+    def generate_gate_string(self):
+        # Returns a randomly generated string representation of given number of qbits
+
+        for i in range(self.string_length):
+            if i % 3 == 0:
+                self.gate_string.append(random.randrange(0, 6))
+            else:
+                self.gate_string.append(random.randrange(0, 3))
+
+        for i in range(0, int(self.string_length / 3)):
+            int_index = i * 3
+
+            if ((self.gate_string[int_index] in [0, 4, 5]) and
+                    self.gate_string[int_index + 1] == self.gate_string[int_index + 2]):
+
+                if self.gate_string[int_index + 1] == 0:
+                    self.gate_string[int_index + 1] = random.randrange(1, 3)
+
+                elif self.gate_string[int_index + 1] == 1:
+                    self.gate_string[int_index + 2] = 0  # TODO - hardcoded
+
+                elif self.gate_string[int_index + 1] == 2:
+                    self.gate_string[int_index + 2] = random.randrange(0, 2)
+
+    def set_gate_string(self, string_list):
+        self.gate_string = string_list
+
+    def get_gates_string(self):
+        return self.gate_string

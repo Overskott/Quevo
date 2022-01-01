@@ -1,9 +1,9 @@
-import EQC
+import quantum_circuit_evolver
 
 if __name__ == '__main__':
     number_of_gates = 10
     chromosomes = 10
-    generations = 50
+    generations = 20
     starting_states_CA = [[0, 0, 0],
                           [0, 0, 1],
                           [0, 1, 0],
@@ -93,7 +93,8 @@ if __name__ == '__main__':
     best_result.set_gate_string(best_mutated)
     best_result.generate_circuit_from_string()
     best_result.draw_circuit()
-    print()
+
+
 
 
 

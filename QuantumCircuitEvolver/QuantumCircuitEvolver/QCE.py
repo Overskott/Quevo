@@ -1,3 +1,4 @@
+
 import quantum_circuit_evolver as qce
 
 if __name__ == '__main__':
@@ -15,25 +16,65 @@ if __name__ == '__main__':
 
     desired_chance_of_one = [0.5, 0.3, 0.4, 0, 0.5, 0.2, 0, 0.9]
 
-    best_outcome = 1000
-    best_circuit = []
     circuit_list = []
-
-    #init_circuit =
-
-    #print(init_circuit)
+    circuit_string = qce.CircuitString(number_of_gates * 3)
 
 
     """ def init_first_gen():"""
     for i in range(chromosomes):
-        circuit_string = qce.CircuitString(number_of_gates*3)
+        circuit_string.clear_string()
         circuit_string.generate_gate_string()
         circuit_list.append(circuit_string)
     """ *----------------------------* """
 
     generated_circuit = qce.CircuitGenerator(number_of_gates)
 
-    generated_circuit.run_generation(circuit_list)
+    fitness_list = generated_circuit.run_generation(circuit_list)
+
+    min_string = min(fitness_list)
+    min_index = fitness_list.index(min_string)
+    best_circuit = circuit_list[min_index].get_gates_string()
+
+    print(str(min_string) + "\n" + str(best_circuit))
+    print("\n\n\n")
+    mutated_list = []
+    mutated_string = qce.CircuitString(number_of_gates*3)
+
+    for i in range(chromosomes):
+        print(best_circuit)
+        mutated_string.set_gate_string(best_circuit)
+        mutated_string.mutate_gate_string()
+        mutated_list.append(circuit_string)
+
+    generated_circuit = qce.CircuitGenerator(number_of_gates)
+
+    fitness_list = generated_circuit.run_generation(mutated_list)
+
+    min_string = min(fitness_list)
+    min_index = fitness_list.index(min_string)
+    best_circuit = circuit_list[min_index]
+    print("\n\n\n")
+    print(str(min_string) + "\n" + str(best_circuit))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    input()
 
     for i in range(chromosomes):
         print('Run ' + str(i) + ': ')

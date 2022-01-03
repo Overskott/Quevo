@@ -3,68 +3,67 @@ import random
 from qiskit import *
 
 
-class CircuitString(object):
+class CircuitString(list):
 
     def __init__(self, string_length):
-        self.gate_string = []
+        # self.gate_string = []
+        super().__init__()
         self.string_length = string_length
+
+    def check_duplicate_qubit_assignment(self):
+        for i in range(0, int(self.string_length / 3)):
+            int_index = i * 3
+
+            if ((self[int_index] in [0, 4, 5]) and
+                    self[int_index + 1] == self[int_index + 2]):
+
+                if self[int_index + 1] == 0:
+                    self[int_index + 1] = random.randrange(1, 3)
+
+                elif self[int_index + 1] == 1:
+                    self[int_index + 2] = 0  # TODO - hardcoded
+
+                elif self[int_index + 1] == 2:
+                    self[int_index + 2] = random.randrange(0, 2)
 
     def generate_gate_string(self):
         # Returns a randomly generated string representation of given number of qbits
 
         for i in range(self.string_length):
             if i % 3 == 0:
-                self.gate_string.append(random.randrange(0, 6))
+                self.append(random.randrange(0, 6))
             else:
-                self.gate_string.append(random.randrange(0, 3))
+                self.append(random.randrange(0, 3))
 
-        for i in range(0, int(self.string_length / 3)):
-            int_index = i * 3
+        self.check_duplicate_qubit_assignment()
 
-            if ((self.gate_string[int_index] in [0, 4, 5]) and
-                    self.gate_string[int_index + 1] == self.gate_string[int_index + 2]):
-
-                if self.gate_string[int_index + 1] == 0:
-                    self.gate_string[int_index + 1] = random.randrange(1, 3)
-
-                elif self.gate_string[int_index + 1] == 1:
-                    self.gate_string[int_index + 2] = 0  # TODO - hardcoded
-
-                elif self.gate_string[int_index + 1] == 2:
-                    self.gate_string[int_index + 2] = random.randrange(0, 2)
-        return self.gate_string
+        return self
 
     def mutate_gate_string(self):
 
         random_index = random.randrange(0, self.string_length/3) * 3
 
-        self.gate_string[random_index] = random.randrange(0, 6)
-        self.gate_string[random_index + 1] = random.randrange(0, 3)
-        self.gate_string[random_index + 2] = random.randrange(0, 3)
+        self[random_index] = random.randrange(0, 6)
+        self[random_index + 1] = random.randrange(0, 3)
+        self[random_index + 2] = random.randrange(0, 3)
 
-        if ((self.gate_string[random_index] in [0, 4, 5]) and self.gate_string[random_index + 1] == self.gate_string[
-            random_index + 2]):
+        self.check_duplicate_qubit_assignment()
 
-            if self.gate_string[random_index + 1] == 0:
-                self.gate_string[random_index + 1] = random.randrange(1, 3)
 
-            elif self.gate_string[random_index + 1] == 1:
-                self.gate_string[random_index + 2] = 0  # TODO - hardcoded
-
-            elif self.gate_string[random_index + 1] == 2:
-                self.gate_string[random_index + 2] = random.randrange(0, 2)
 
     def set_gate_string(self, string_list):
-        self.gate_string = string_list
+        self.clear()
+        for string in string_list:
+            self.append(string)
 
     def get_gates_string(self):
-        return self.gate_string
+        return self
 
     def clear_string(self):
-        self.gate_string.clear()
+        self.clear()
 
-    def __repr__(self):
-        return str(self.gate_string) + '\n'
+    #def __repr__(self):
+    #    return self. + '\n'
 
 
 class CircuitGenerator(object):

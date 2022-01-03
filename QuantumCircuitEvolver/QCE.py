@@ -5,15 +5,6 @@ if __name__ == '__main__':
     number_of_gates = 10
     chromosomes = 10
     generations = 20
-    starting_states = [[0, 0, 0],
-                       [0, 0, 1],
-                       [0, 1, 0],
-                       [0, 1, 1],
-                       [1, 0, 0],
-                       [1, 0, 1],
-                       [1, 1, 0],
-                       [1, 1, 1]]
-
     desired_chance_of_one = [0.5, 0.3, 0.4, 0, 0.5, 0.2, 0, 0.9]
 
     circuit_list = []

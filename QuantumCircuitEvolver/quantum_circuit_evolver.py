@@ -4,9 +4,66 @@ from qiskit import *
 
 
 class CircuitString(list):
+    """
+    A class used to represent a quantum computer circuit as a list of integers.
+
+    ...
+
+    Attributes
+    ----------
+    _gates : int
+        Number of quantum gates in the list representation
+    -length : in
+        The total length of the list
+
+    Methods
+    -------
+    generate_gate_string(length) : None
+        Generates a list of random quantum gate integer representations
+        of length = length.
+    mutate_gate_string() : None
+        Randomly changes/replaces one of the gates in the gate representation
+    check_duplicate_qubit_assignment() : None
+        Checks if the randomly generated or mutated circuit is valid. Fixes it
+        if not.
+    set_gate_string(string_list) : None
+        Sets the gate representation from input list.
+    get_gates_string() : list
+        Returns the gate representation as a list
+    clear_string() : None
+        clears the gate representation list
+    """
 
     def __init__(self):
         super().__init__()
+        self._gates = 0
+        self._length = 0
+
+    def generate_gate_string(self, length):
+        # Returns a randomly generated string representation of given number of qbits
+
+        for i in range(length):
+            if i % 3 == 0:
+                self.append(random.randrange(0, 6))
+            else:
+                self.append(random.randrange(0, 3))
+
+        self.check_duplicate_qubit_assignment()
+
+        self._length = length
+        self._gates = length/3
+
+        return self
+
+    def mutate_gate_string(self):
+
+        random_index = random.randrange(0, int(len(self)/3)) * 3
+
+        self[random_index] = random.randrange(0, 6)
+        self[random_index + 1] = random.randrange(0, 3)
+        self[random_index + 2] = random.randrange(0, 3)
+
+        self.check_duplicate_qubit_assignment()
 
     def check_duplicate_qubit_assignment(self):
         for i in range(0, int(len(self)/3)):
@@ -24,42 +81,16 @@ class CircuitString(list):
                 elif self[int_index + 1] == 2:
                     self[int_index + 2] = random.randrange(0, 2)
 
-    def generate_gate_string(self, length):
-        # Returns a randomly generated string representation of given number of qbits
-
-        for i in range(length):
-            if i % 3 == 0:
-                self.append(random.randrange(0, 6))
-            else:
-                self.append(random.randrange(0, 3))
-
-        self.check_duplicate_qubit_assignment()
-
-        return self
-
-    def mutate_gate_string(self):
-
-        random_index = random.randrange(0, int(len(self)/3)) * 3
-
-        self[random_index] = random.randrange(0, 6)
-        self[random_index + 1] = random.randrange(0, 3)
-        self[random_index + 2] = random.randrange(0, 3)
-
-        self.check_duplicate_qubit_assignment()
-
     def set_gate_string(self, string_list):
         self.clear()
         for string in string_list:
             self.append(string)
-
-
 
     def get_gates_string(self):
         return list(self)
 
     def clear_string(self):
         self.clear()
-    
 
 
 def create_mutated_generation(chromosomes: int, parent: list) -> list:
@@ -175,9 +206,6 @@ class CircuitGenerator(object):
             fitness = fitness + error
         return fitness
 
-    def clear_string(self):
-        self.gate_list = []
-
     def draw_circuit(self):
         print(self.circuit.draw(output='text'))
 
@@ -189,3 +217,6 @@ class CircuitGenerator(object):
 
     def clear_circuit(self):
         self.circuit.data.clear()
+
+    def clear_string(self):
+        self.gate_list = []

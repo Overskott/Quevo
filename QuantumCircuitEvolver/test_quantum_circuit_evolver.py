@@ -8,14 +8,12 @@ class TestCircuitString(TestCase):
         assert True
 
     def test_generate_gate_string(self):
-
         assert True
 
     def test_mutate_gate_string(self):
         assert True
 
     def test_set_gate_string(self):
-
         assert True
 
     def test_get_gates_string(self):
@@ -29,7 +27,43 @@ class TestCircuitString(TestCase):
     def test_clear_string(self):
         test_circuit_string = CircuitString()
 
-        assert test_circuit_string.set_gate_string([]) in None
-
         test_circuit_string.set_gate_string([1, 2, 3])
         assert test_circuit_string.clear_string() is None
+
+
+class TestCircuitGenerator:
+    def test_generate_circuit(self):
+        assert True
+
+    def test_initialize_initial_states(self):
+        assert True
+
+    def test_create_initial_generation(self):
+        assert True
+
+    def test_run_generation(self):
+        assert True
+
+    def test_calculate_error(self):
+        assert True
+
+    def test_run_circuit(self):
+        assert True
+
+    def test_find_chromosome_fitness(self):
+        assert True
+
+    def test_draw_circuit(self):
+        assert True
+
+    def test_set_gate_string(self):
+        assert True
+
+    def test_get_gates_string(self):
+        assert True
+
+    def test_clear_circuit(self):
+        assert True
+
+    def test_clear_string(self):
+        assert True

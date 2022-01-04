@@ -1,5 +1,8 @@
+from quantum_circuit_evolver import *
 
-import quantum_circuit_evolver as qce
+# TODO: Setting up unit testing
+# TODO: Documentation and comments
+# TODO: Error and exception handling
 
 if __name__ == '__main__':
     gates = 10
@@ -8,7 +11,7 @@ if __name__ == '__main__':
     desired_chance_of_one = [0.5, 0.3, 0.4, 0, 0.5, 0.2, 0, 0.9]
 
     # Generate initial generation of chromosomes
-    generated_circuit = qce.CircuitGenerator(gates)
+    generated_circuit = CircuitGenerator(gates)
     init_gen = generated_circuit.create_initial_generation(chromosomes)
 
     # Print initial generation
@@ -38,8 +41,8 @@ if __name__ == '__main__':
     for gen in range(0, generations):
 
         # Mutate next generation of chromosomes
-        mutated_circuit = qce.CircuitGenerator(gates)
-        mutated_gen = qce.create_mutated_generation(
+        mutated_circuit = CircuitGenerator(gates)
+        mutated_gen = create_mutated_generation(
             chromosomes, best_chromosome)
 
         # Print mutated generation
@@ -66,6 +69,6 @@ if __name__ == '__main__':
             best_mutated_chromosome = best_chromosome
 
     print("Best fitness found: " + str(final_fitness))
-    print("Best chromosone found: " +str(best_mutated_chromosome))
+    print("Best chromosone found: " + str(best_mutated_chromosome))
 
 

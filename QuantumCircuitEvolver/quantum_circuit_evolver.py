@@ -1,7 +1,5 @@
 import math
 import random
-from typing import Union, Any
-
 from qiskit import *
 
 
@@ -9,7 +7,6 @@ class CircuitString(list):
 
     def __init__(self):
         super().__init__()
-        self.theta_list = []
 
     def check_duplicate_qubit_assignment(self):
         for i in range(0, int(len(self)/3)):
@@ -22,7 +19,7 @@ class CircuitString(list):
                     self[int_index + 1] = random.randrange(1, 3)
 
                 elif self[int_index + 1] == 1:
-                    self[int_index + 2] = 0  # TODO - hardcoded
+                    self[int_index + 2] = 0  # TODO - hardcoded, make random
 
                 elif self[int_index + 1] == 2:
                     self[int_index + 2] = random.randrange(0, 2)
@@ -55,11 +52,14 @@ class CircuitString(list):
         for string in string_list:
             self.append(string)
 
+
+
     def get_gates_string(self):
-        return self
+        return list(self)
 
     def clear_string(self):
         self.clear()
+    
 
 
 def create_mutated_generation(chromosomes: int, parent: list) -> list:
@@ -78,7 +78,6 @@ class CircuitGenerator(object):
 
     def __init__(self, number_of_gates):
         self.gate_list = []
-        self.theta_list = []
         self.number_of_gates = number_of_gates
         self.string_length = number_of_gates * 3
         self.circuit = QuantumCircuit(3, 1)
@@ -140,8 +139,6 @@ class CircuitGenerator(object):
             circuit_list.append(circuit_string)
 
         return circuit_list
-
-
 
     def run_generation(self, circuit_string_list) -> list:
         fitness_list = []

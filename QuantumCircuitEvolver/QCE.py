@@ -5,20 +5,41 @@ from quantum_circuit_evolver import *
 # TODO: Error and exception handling
 
 if __name__ == '__main__':
-    gates = 10
+    gates = 5
     chromosomes = 10
+    genes = gates * 3
     generations = 20
     desired_chance_of_one = [0.5, 0.3, 0.4, 0, 0.5, 0.2, 0, 0.9]
 
     # Generate initial generation of chromosomes
-    generated_circuit = CircuitGenerator(gates)
-    init_gen = generated_circuit.create_initial_generation(chromosomes)
 
-    # Print initial generation
+    init_gen = Generation(gates, chromosomes)
+    init_gen.create_initial_generation()
+
     print("initial generation: ")
-    for chromosome in init_gen:
+    for chromosome in init_gen.chromosome_list:
         print(chromosome)
     print('\n')
+
+    print("Theta values: ")
+    for chromosome in init_gen.chromosome_list:
+        print(chromosome.get_theta_list())
+
+    print("Circuits: ")
+    for chromosome in init_gen.chromosome_list:
+        circuit = Circuit(chromosome)
+        circuit.generate_circuit()
+        circuit.draw()
+
+
+
+    input()
+
+    # Print initial generation
+
+    for chromosome in init_gen:
+        print(chromosome)
+
 
     # Check every Chromosome's fitness
     fitness_list = generated_circuit.run_generation(init_gen)
@@ -41,7 +62,7 @@ if __name__ == '__main__':
     for gen in range(0, generations):
 
         # Mutate next generation of chromosomes
-        mutated_circuit = CircuitGenerator(gates)
+        mutated_circuit = Circuit(gates)
         mutated_gen = create_mutated_generation(
             chromosomes, best_chromosome)
 

@@ -1,9 +1,11 @@
 import math
 import random
+from typing import List
+
 from qiskit import *
 
 
-class CircuitString(list):
+class Chromosome(object):
     """
     A class used to represent a quantum computer circuit as a list of integers.
 
@@ -11,10 +13,10 @@ class CircuitString(list):
 
     Attributes
     ----------
-    _gates : int
-        Number of quantum gates in the list representation
-    -length : in
-        The total length of the list
+    _integer_list: List[int]
+        List of integers representing quantum gates. 3 successive integers for one gate.
+    _theta_list: List[float]
+        A list of angular values for the gates.
 
     Methods
     -------
@@ -35,82 +37,126 @@ class CircuitString(list):
     """
 
     def __init__(self):
-        super().__init__()
-        self._gates = 0
-        self._length = 0
+        self._integer_list: List[int] = []
+        self._theta_list: List[float] = []
+        self._length: int = 0
 
-    def generate_gate_string(self, length):
-        # Returns a randomly generated string representation of given number of qbits
+    def __repr__(self):
+        return str(self._integer_list)
 
-        for i in range(length):
-            if i % 3 == 0:
-                self.append(random.randrange(0, 6))
-            else:
-                self.append(random.randrange(0, 3))
+    def set_integer_list(self, integer_list: List[int]):
+        self.clear()
+        self._length = len(integer_list)
+        for integer in integer_list:
+            self._integer_list.append(integer)
+        self._update_length()
+        self._update_theta_list()
 
-        self.check_duplicate_qubit_assignment()
+    def get_integer_list(self) -> List[int]:
+        return self._integer_list
 
-        self._length = length
-        self._gates = length/3
+    def get_length(self):
+        return self._length
 
-        return self
+    def _update_length(self):
+        self._length = len(self._integer_list)
 
-    def mutate_gate_string(self):
+    def get_theta_list(self) -> List[float]:
+        return self._theta_list
 
-        random_index = random.randrange(0, int(len(self)/3)) * 3
+    def _update_theta_list(self):
+        self._theta_list.clear()
 
-        self[random_index] = random.randrange(0, 6)
-        self[random_index + 1] = random.randrange(0, 3)
-        self[random_index + 2] = random.randrange(0, 3)
+        gates = int(self._length / 3)
 
-        self.check_duplicate_qubit_assignment()
-
-    def check_duplicate_qubit_assignment(self):
-        for i in range(0, int(len(self)/3)):
+        for i in range(0, gates):
             int_index = i * 3
 
-            if ((self[int_index] in [0, 4, 5]) and
-                    self[int_index + 1] == self[int_index + 2]):
+            if self._integer_list[int_index] in [4, 5]:
+                theta = random.uniform(0, 2 * math.pi)
+                self._theta_list.append(theta)
+            else:
+                self._theta_list.append(0)
 
-                if self[int_index + 1] == 0:
-                    self[int_index + 1] = random.randrange(1, 3)
+    def clear(self):
+        self._integer_list.clear()
+        self._theta_list.clear()
+        self._length = 0
 
-                elif self[int_index + 1] == 1:
-                    self[int_index + 2] = 0  # TODO - hardcoded, make random
+    def generate_random_chromosome(self, gates):
+        # Returns a randomly generated string representation of given number of qbits
 
-                elif self[int_index + 1] == 2:
-                    self[int_index + 2] = random.randrange(0, 2)
+        for i in range(gates * 3):
+            if i % 3 == 0:
+                self._integer_list.append(random.randrange(0, 6))
+            else:
+                self._integer_list.append(random.randrange(0, 3))
 
-    def set_gate_string(self, string_list):
-        self.clear()
-        for string in string_list:
-            self.append(string)
+        self._update_length()
+        self.fix_duplicate_qubit_assignment()
+        self._update_theta_list()
 
-    def get_gates_string(self):
-        return list(self)
+    def mutate_chromosome(self):
+        gates = int(self._length / 3)
 
-    def clear_string(self):
-        self.clear()
+        random_index = random.randrange(0, gates) * 3
+
+        self._integer_list[random_index] = random.randrange(0, 6)
+        self._integer_list[random_index + 1] = random.randrange(0, 3)
+        self._integer_list[random_index + 2] = random.randrange(0, 3)
+
+        self.fix_duplicate_qubit_assignment()
+        self._update_theta_list()
+
+    def fix_duplicate_qubit_assignment(self):
+        gates = int(self._length / 3)
+
+        for i in range(0, gates):
+            int_index = i * 3
+
+            if ((self._integer_list[int_index] in [0, 4, 5]) and
+                    self._integer_list[int_index + 1] == self._integer_list[int_index + 2]):
+
+                if self._integer_list[int_index + 1] == 0:
+                    self._integer_list[int_index + 1] = random.randrange(1, 3)
+
+                elif self._integer_list[int_index + 1] == 1:
+                    self._integer_list[int_index + 2] = 0  # TODO - hardcoded, make random
+
+                elif self._integer_list[int_index + 1] == 2:
+                    self._integer_list[int_index + 2] = random.randrange(0, 2)
 
 
-def create_mutated_generation(chromosomes: int, parent: list) -> list:
-    mutated_gen = [parent]
-    for i in range(chromosomes):
-        mutated_string = CircuitString()
-        mutated_string.set_gate_string(parent)
-        mutated_string.mutate_gate_string()
-        mutated_gen.append(mutated_string)
-    return mutated_gen
+class Generation(object):
+
+    def __init__(self, chromosomes, gates):
+        self.chromosome_list: List[Chromosome] = []
+        self.fitness_list: List[float] = []
+        self._chromosomes: int = chromosomes
+        self._gates: int = gates
+
+    def create_initial_generation(self) -> None:
+        self.chromosome_list.clear()
+        for i in range(self._chromosomes):
+            chromosome = Chromosome()
+            chromosome.generate_random_chromosome(self._gates)
+            self.chromosome_list.append(chromosome)
+
+    def create_mutated_generation(self, parent: list) -> None:
+        self.chromosome_list.clear()
+        for i in range(self._chromosomes):
+            mutated_chromosome = Chromosome()
+            mutated_chromosome.set_integer_list(parent)
+            mutated_chromosome.mutate_chromosome()
+            self.chromosome_list.append(mutated_chromosome)
 
 
-class CircuitGenerator(object):
-    """ Generates a string of 3*number_of_gates length number representing gate types and position in a quantum
+class Circuit(object):
+    """ Generates a string of 3 * number_of_gates length number representing gate types and position in a quantum
     circuit """
 
-    def __init__(self, number_of_gates):
-        self.gate_list = []
-        self.number_of_gates = number_of_gates
-        self.string_length = number_of_gates * 3
+    def __init__(self, chromosome: Chromosome):
+        self.chromosome = chromosome
         self.circuit = QuantumCircuit(3, 1)
         self.shots = 1024
         self.STARTING_STATES = [[0, 0, 0],
@@ -124,20 +170,20 @@ class CircuitGenerator(object):
         self.desired_chance_of_one = [0.5, 0.3, 0.4, 0, 0.5, 0.2, 0, 0.9]
 
     def __repr__(self):
-        return str(self.gate_list) + '\n'
+        #return str(self.gate_list) + '\n'
+        return self.draw()
 
     def generate_circuit(self):
         # Parsing integer string and converting it to gates
         self.clear_circuit()
-        for i in range(0, self.number_of_gates):
+        gates = int(self.chromosome.get_length() / 3)
+
+        for i in range(0, gates):
             gate_index = i * 3
 
-            a = self.gate_list[gate_index]
-            b = self.gate_list[gate_index + 1]
-            c = self.gate_list[gate_index + 2]
-
-            # theta = random.uniform(0, 2 * math.pi)
-            theta = 5 * math.pi / 2
+            a = self.chromosome.get_integer_list()[gate_index]
+            b = self.chromosome.get_integer_list()[gate_index + 1]
+            c = self.chromosome.get_integer_list()[gate_index + 2]
 
             if a == 0:
                 self.circuit.cx(b, c)
@@ -148,28 +194,13 @@ class CircuitGenerator(object):
             elif a == 3:
                 self.circuit.z(b)
             elif a == 4:
+                theta = self.chromosome.get_theta_list()[i]
                 self.circuit.rzz(theta=theta, qubit1=b, qubit2=c)
             elif a == 5:
+                theta = self.chromosome.get_theta_list()[i]
                 self.circuit.rxx(theta=theta, qubit1=b, qubit2=c)
 
         self.circuit.measure(0, 0)
-
-    def initialize_initial_states(self, triplet: list):
-        if triplet[0] == 1:
-            self.circuit.x(0)
-        if triplet[1] == 1:
-            self.circuit.x(1)
-        if triplet[2] == 1:
-            self.circuit.x(2)
-
-    def create_initial_generation(self, chromosomes: int) -> list:
-        circuit_list = []
-        for i in range(chromosomes):
-            circuit_string = CircuitString()
-            circuit_string.generate_gate_string(self.string_length)
-            circuit_list.append(circuit_string)
-
-        return circuit_list
 
     def run_generation(self, circuit_string_list) -> list:
         fitness_list = []
@@ -194,29 +225,29 @@ class CircuitGenerator(object):
         job = aer_sim.run(qobj)
         return job.result().get_counts()
 
-    def find_chromosome_fitness(self, circuit_string: CircuitString) -> float:
+    def find_chromosome_fitness(self, chromosome: Chromosome) -> float:
         fitness = 0
         for i in range(0, len(self.STARTING_STATES)):
             self.clear_circuit()
-            self.clear_string()
+            self.chromosome.clear()
             self.initialize_initial_states(self.STARTING_STATES[i])
-            self.set_gate_string(circuit_string)
+            self.chromosome = chromosome
             self.generate_circuit()
             error: float = self.calculate_error(self.desired_chance_of_one[i])
             fitness = fitness + error
         return fitness
 
-    def draw_circuit(self):
+    def initialize_initial_states(self, triplet: list):
+        if triplet[0] == 1:
+            self.circuit.x(0)
+        if triplet[1] == 1:
+            self.circuit.x(1)
+        if triplet[2] == 1:
+            self.circuit.x(2)
+
+    def draw(self):
         print(self.circuit.draw(output='text'))
-
-    def set_gate_string(self, string_list: list):
-        self.gate_list = string_list
-
-    def get_gates_string(self):
-        return self.gate_list
 
     def clear_circuit(self):
         self.circuit.data.clear()
 
-    def clear_string(self):
-        self.gate_list = []

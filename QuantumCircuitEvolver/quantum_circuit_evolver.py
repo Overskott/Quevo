@@ -210,7 +210,7 @@ class Circuit(object):
         return fitness_list
 
     def calculate_error(self, desired_outcome):
-        counts = self.run_circuit()
+        counts = self.run_simulator()
         if '0' in counts:
             chance_of_one = (self.shots - counts['0']) / self.shots
             error = abs(desired_outcome - chance_of_one)
@@ -218,7 +218,7 @@ class Circuit(object):
             error = 1
         return error
 
-    def run_circuit(self):
+    def run_simulator(self):
         aer_sim = Aer.get_backend('aer_simulator')
         # aer_sim = Aer.get_backend('statevector_simulator')
         qobj = assemble(self.circuit, shots=self.shots)

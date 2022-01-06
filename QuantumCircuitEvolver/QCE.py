@@ -9,8 +9,9 @@ if __name__ == '__main__':
     chromosomes = 10
     # genes = gates * 3
     generations = 20
-    desired_chance_of_one = [0.5, 0.3, 0.4, 0, 0.5, 0.2, 0, 0.9]
-
+    desired_chance_of_one = [0.5, 0.7, 0.4, 0, 0.2, 0.7, 0.1, 0.9]
+    # desired_chance_of_one = [1, 1, 1, 1, 1, 1, 1, 1]
+    # desired_chance_of_one = [1, 0, 1, 0, 0, 1, 0, 1]
     # Generate initial generation of chromosomes
 
     init_gen = Generation(gates, chromosomes)
@@ -89,3 +90,9 @@ if __name__ == '__main__':
 
     print("Best fitness found: " + str(final_fitness))
     print("Best chromosome found: " + str(best_mutated_chromosome))
+
+    circuit = Circuit(best_mutated_chromosome)
+    circuit.generate_circuit()
+    print(desired_chance_of_one)
+    circuit.print_ca_outcomes()
+    circuit.draw()

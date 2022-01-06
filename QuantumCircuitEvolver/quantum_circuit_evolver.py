@@ -69,12 +69,10 @@ class Chromosome(object):
 
     def _generate_theta_list(self):
         self._theta_list.clear()
-
         gates = int(self._length / 3)
 
         for i in range(0, gates):
             int_index = i * 3
-
             if self._integer_list[int_index] in [4, 5]:
                 theta = random.uniform(0, 2 * math.pi)
                 self._theta_list.append(theta)
@@ -265,6 +263,15 @@ class Circuit(object):
             error = self.calculate_error(desired_chance_of_one[i])
             fitness = fitness + error
         return fitness
+
+    def print_ca_outcomes(self):
+        for i in range(0, len(self.STARTING_STATES)):
+            self.clear_circuit()
+            # self.chromosome.clear()
+            self.initialize_initial_states(self.STARTING_STATES[i])
+            # self.chromosome = chromosome
+            self.generate_circuit()
+            print(str(self.STARTING_STATES[i]) + "| " + str(self.run_simulator()))
 
     def initialize_initial_states(self, triplet: list):
         if triplet[0] == 1:

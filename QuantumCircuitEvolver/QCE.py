@@ -8,7 +8,7 @@ if __name__ == '__main__':
     gates = 5
     chromosomes = 10
     genes = gates * 3
-    generations = 20
+    generations = 50
     desired_chance_of_one = [0.5, 0.3, 0.4, 0, 0.5, 0.2, 0, 0.9]
 
     # Generate initial generation of chromosomes
@@ -24,31 +24,25 @@ if __name__ == '__main__':
     print("Theta values: ")
     for chromosome in init_gen.chromosome_list:
         print(chromosome.get_theta_list())
+    print('\n')
 
     print("Circuits: ")
     for chromosome in init_gen.chromosome_list:
         circuit = Circuit(chromosome)
         circuit.generate_circuit()
         circuit.draw()
+    print("\n")
 
+    init_gen.run_generation(desired_chance_of_one)
 
+    for fitness in init_gen.fitness_list:
+        print(fitness)
+    print("\n")
 
-    input()
+    best_fitness = min(init_gen.fitness_list)
+    min_index = init_gen.fitness_list.index(best_fitness)
 
-    # Print initial generation
-
-    for chromosome in init_gen:
-        print(chromosome)
-
-
-    # Check every Chromosome's fitness
-    fitness_list = generated_circuit.run_generation(init_gen)
-
-    # Print initial gen fitness best result
-    best_fitness = min(fitness_list)
-    min_index = fitness_list.index(best_fitness)
-
-    best_chromosome = init_gen[min_index]
+    best_chromosome = init_gen.chromosome_list[min_index]
 
     print("Fitness for best chromosome: " + str(best_fitness) + "\n"
           + "Best chromosome: \n" + str(best_chromosome))
@@ -62,24 +56,24 @@ if __name__ == '__main__':
     for gen in range(0, generations):
 
         # Mutate next generation of chromosomes
-        mutated_circuit = Circuit(gates)
-        mutated_gen = create_mutated_generation(
-            chromosomes, best_chromosome)
+        next_gen = Generation(chromosomes, gates)
+        next_gen.create_mutated_generation(best_chromosome)
 
         # Print mutated generation
         print("Mutated generation " + str(gen + 1) + ": ")
-        for chromosome in mutated_gen:
+        for chromosome in next_gen.chromosome_list:
             print(chromosome)
         print('\n')
 
+
         # Check every Chromosome's fitness
-        mutated_fitness_list = mutated_circuit.run_generation(mutated_gen)
+        next_gen.run_generation(desired_chance_of_one)
 
         # Print generation best result
-        best_fitness = min(mutated_fitness_list)
-        min_index = mutated_fitness_list.index(best_fitness)
+        best_fitness = min(next_gen.fitness_list)
+        min_index = next_gen.fitness_list.index(best_fitness)
 
-        best_chromosome = mutated_gen[min_index]
+        best_chromosome = next_gen.chromosome_list[min_index]
         print("Fitness for best mutated chromosome: " + str(best_fitness) + "\n"
               + "Best mutated chromosome:\n" + str(best_chromosome))
         print("\n")
@@ -90,6 +84,6 @@ if __name__ == '__main__':
             best_mutated_chromosome = best_chromosome
 
     print("Best fitness found: " + str(final_fitness))
-    print("Best chromosone found: " + str(best_mutated_chromosome))
+    print("Best chromosome found: " + str(best_mutated_chromosome))
 
 

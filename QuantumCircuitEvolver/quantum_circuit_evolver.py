@@ -1,7 +1,6 @@
 import math
 import random
 from typing import List
-
 from qiskit import *
 
 
@@ -44,6 +43,12 @@ class Chromosome(object):
     def __repr__(self):
         return str(self._integer_list)
 
+    def __len__(self):
+        return self._length
+
+    def __iter__(self):
+        yield from self._integer_list
+
     def set_integer_list(self, integer_list: List[int]):
         self.clear()
         self._length = len(integer_list)
@@ -84,7 +89,7 @@ class Chromosome(object):
         self._length = 0
 
     def generate_random_chromosome(self, gates):
-        # Returns a randomly generated string representation of given number of qbits
+        # Returns a randomly generated string representation of given number of qubits
 
         for i in range(gates * 3):
             if i % 3 == 0:
@@ -150,6 +155,13 @@ class Generation(object):
             mutated_chromosome.mutate_chromosome()
             self.chromosome_list.append(mutated_chromosome)
 
+    def run_generation(self, desired_outcome: List[float]) -> None:
+
+        for chromosome in self.chromosome_list:
+            circuit = Circuit(chromosome)
+            chromosome_fitness = circuit.find_chromosome_fitness(desired_outcome)
+            self.fitness_list.append(chromosome_fitness)
+
 
 class Circuit(object):
     """ Generates a string of 3 * number_of_gates length number representing gate types and position in a quantum
@@ -167,10 +179,10 @@ class Circuit(object):
                                 [1, 0, 1],
                                 [1, 1, 0],
                                 [1, 1, 1]]
-        self.desired_chance_of_one = [0.5, 0.3, 0.4, 0, 0.5, 0.2, 0, 0.9]
+        # self.desired_chance_of_one = [0.5, 0.3, 0.4, 0, 0.5, 0.2, 0, 0.9]
 
     def __repr__(self):
-        #return str(self.gate_list) + '\n'
+        # return str(self.gate_list) + '\n'
         return self.draw()
 
     def generate_circuit(self):
@@ -202,13 +214,6 @@ class Circuit(object):
 
         self.circuit.measure(0, 0)
 
-    def run_generation(self, circuit_string_list) -> list:
-        fitness_list = []
-        for circ_str in circuit_string_list:
-            chromosome_fitness = self.find_chromosome_fitness(circ_str)
-            fitness_list.append(chromosome_fitness)
-        return fitness_list
-
     def calculate_error(self, desired_outcome):
         counts = self.run_simulator()
         if '0' in counts:
@@ -221,19 +226,19 @@ class Circuit(object):
     def run_simulator(self):
         aer_sim = Aer.get_backend('aer_simulator')
         # aer_sim = Aer.get_backend('statevector_simulator')
-        qobj = assemble(self.circuit, shots=self.shots)
-        job = aer_sim.run(qobj)
+        quantum_circuit = assemble(self.circuit, shots=self.shots)
+        job = aer_sim.run(quantum_circuit)
         return job.result().get_counts()
 
-    def find_chromosome_fitness(self, chromosome: Chromosome) -> float:
+    def find_chromosome_fitness(self, desired_chance_of_one: List[float]) -> float:
         fitness = 0
         for i in range(0, len(self.STARTING_STATES)):
             self.clear_circuit()
-            self.chromosome.clear()
+            # self.chromosome.clear()
             self.initialize_initial_states(self.STARTING_STATES[i])
-            self.chromosome = chromosome
+            # self.chromosome = chromosome
             self.generate_circuit()
-            error: float = self.calculate_error(self.desired_chance_of_one[i])
+            error = self.calculate_error(desired_chance_of_one[i])
             fitness = fitness + error
         return fitness
 
@@ -250,4 +255,3 @@ class Circuit(object):
 
     def clear_circuit(self):
         self.circuit.data.clear()
-

@@ -17,18 +17,18 @@ class TestCircuitString(TestCase):
         assert True
 
     def test_get_gates_string(self):
-        test_circuit_string = CircuitString()
-        assert test_circuit_string.get_gates_string() == []
+        test_circuit_string = Chromosome()
+        assert test_circuit_string.get_integer_list() == []
 
         int_list = [1, 2, 3]
-        test_circuit_string.set_gate_string(int_list)
-        assert test_circuit_string.get_gates_string() == int_list
+        test_circuit_string.set_integer_list(int_list)
+        assert test_circuit_string.get_integer_list() == int_list
 
     def test_clear_string(self):
-        test_circuit_string = CircuitString()
+        test_circuit_string = Chromosome()
 
-        test_circuit_string.set_gate_string([1, 2, 3])
-        assert test_circuit_string.clear_string() is None
+        test_circuit_string.set_integer_list([1, 2, 3])
+        assert test_circuit_string.clear() is None
 
 
 class TestCircuitGenerator:

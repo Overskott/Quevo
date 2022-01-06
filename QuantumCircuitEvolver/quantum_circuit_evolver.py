@@ -1,3 +1,4 @@
+import copy
 import math
 import random
 from typing import List
@@ -51,7 +52,7 @@ class Chromosome(object):
 
     def set_integer_list(self, integer_list: List[int]):
         self.clear()
-        self._length = len(integer_list)
+        # self._length = len(integer_list)
         for integer in integer_list:
             self._integer_list.append(integer)
         self._update_length()
@@ -66,10 +67,7 @@ class Chromosome(object):
     def _update_length(self):
         self._length = len(self._integer_list)
 
-    def get_theta_list(self) -> List[float]:
-        return self._theta_list
-
-    def _update_theta_list(self):
+    def _generate_theta_list(self):
         self._theta_list.clear()
 
         gates = int(self._length / 3)
@@ -83,6 +81,34 @@ class Chromosome(object):
             else:
                 self._theta_list.append(0)
 
+    def get_theta_list(self) -> List[float]:
+        return self._theta_list
+
+    def _update_theta_list(self, old, new):
+        gates = int(self._length / 3)
+        change_list = self.change_in_theta(old, new)
+
+        for i in range(0, gates):
+            int_index = i * 3
+
+            if change_list[int_index] == 1 and \
+                    self._integer_list[int_index] in [4, 5]:
+                theta = random.uniform(0, 2 * math.pi)
+                self._theta_list[i] = theta
+            elif self._integer_list[int_index] in [4, 5]:
+                continue
+            else:
+                self._theta_list[i] = 0
+
+    def change_in_theta(self, old, new):
+        binary_list = []
+        for i in range(0, self._length):
+            if old[i] == new[i]:
+                binary_list.append(0)
+            else:
+                binary_list.append(1)
+        return binary_list
+
     def clear(self):
         self._integer_list.clear()
         self._theta_list.clear()
@@ -90,7 +116,6 @@ class Chromosome(object):
 
     def generate_random_chromosome(self, gates):
         # Returns a randomly generated string representation of given number of qubits
-
         for i in range(gates * 3):
             if i % 3 == 0:
                 self._integer_list.append(random.randrange(0, 6))
@@ -99,11 +124,11 @@ class Chromosome(object):
 
         self._update_length()
         self.fix_duplicate_qubit_assignment()
-        self._update_theta_list()
+        self._generate_theta_list()
 
     def mutate_chromosome(self):
         gates = int(self._length / 3)
-
+        old_integer_list = copy.copy(self._integer_list)
         random_index = random.randrange(0, gates) * 3
 
         self._integer_list[random_index] = random.randrange(0, 6)
@@ -111,7 +136,7 @@ class Chromosome(object):
         self._integer_list[random_index + 2] = random.randrange(0, 3)
 
         self.fix_duplicate_qubit_assignment()
-        self._update_theta_list()
+        self._update_theta_list(old_integer_list, self._integer_list)
 
     def fix_duplicate_qubit_assignment(self):
         gates = int(self._length / 3)
@@ -147,11 +172,10 @@ class Generation(object):
             chromosome.generate_random_chromosome(self._gates)
             self.chromosome_list.append(chromosome)
 
-    def create_mutated_generation(self, parent: list) -> None:
+    def create_mutated_generation(self, parent: Chromosome) -> None:
         self.chromosome_list.clear()
         for i in range(self._chromosomes):
-            mutated_chromosome = Chromosome()
-            mutated_chromosome.set_integer_list(parent)
+            mutated_chromosome = copy.deepcopy(parent)
             mutated_chromosome.mutate_chromosome()
             self.chromosome_list.append(mutated_chromosome)
 

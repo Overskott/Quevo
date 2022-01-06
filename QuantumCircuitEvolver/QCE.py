@@ -7,8 +7,8 @@ from quantum_circuit_evolver import *
 if __name__ == '__main__':
     gates = 5
     chromosomes = 10
-    genes = gates * 3
-    generations = 50
+    # genes = gates * 3
+    generations = 20
     desired_chance_of_one = [0.5, 0.3, 0.4, 0, 0.5, 0.2, 0, 0.9]
 
     # Generate initial generation of chromosomes
@@ -65,6 +65,10 @@ if __name__ == '__main__':
             print(chromosome)
         print('\n')
 
+        print("Theta values: ")
+        for chromosome in next_gen.chromosome_list:
+            print(chromosome.get_theta_list())
+        print('\n')
 
         # Check every Chromosome's fitness
         next_gen.run_generation(desired_chance_of_one)
@@ -85,5 +89,3 @@ if __name__ == '__main__':
 
     print("Best fitness found: " + str(final_fitness))
     print("Best chromosome found: " + str(best_mutated_chromosome))
-
-

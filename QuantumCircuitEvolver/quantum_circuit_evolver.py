@@ -40,6 +40,7 @@ class Chromosome(object):
         self._integer_list: List[int] = []
         self._theta_list: List[float] = []
         self._length: int = 0
+        self._GATES = 5
 
     def __repr__(self):
         return str(self._integer_list)
@@ -116,7 +117,7 @@ class Chromosome(object):
         # Returns a randomly generated string representation of given number of qubits
         for i in range(gates * 3):
             if i % 3 == 0:
-                self._integer_list.append(random.randrange(0, 6))
+                self._integer_list.append(random.randrange(0, self._GATES))
             else:
                 self._integer_list.append(random.randrange(0, 3))
 
@@ -129,7 +130,7 @@ class Chromosome(object):
         old_integer_list = copy.copy(self._integer_list)
         random_index = random.randrange(0, gates) * 3
 
-        self._integer_list[random_index] = random.randrange(0, 6)
+        self._integer_list[random_index] = random.randrange(0, self._GATES)
         self._integer_list[random_index + 1] = random.randrange(0, 3)
         self._integer_list[random_index + 2] = random.randrange(0, 3)
 

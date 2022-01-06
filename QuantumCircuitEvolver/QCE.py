@@ -12,8 +12,10 @@ if __name__ == '__main__':
     desired_chance_of_one = [0.5, 0.7, 0.4, 0, 0.2, 0.7, 0.1, 0.9]
     # desired_chance_of_one = [1, 1, 1, 1, 1, 1, 1, 1]
     # desired_chance_of_one = [1, 0, 1, 0, 0, 1, 0, 1]
-    # Generate initial generation of chromosomes
+    # desired_chance_of_one = [0, 0, 0, 0, 1, 1, 1, 1]
 
+
+    # Generate initial generation of chromosomes
     init_gen = Generation(gates, chromosomes)
     init_gen.create_initial_generation()
 
@@ -61,15 +63,15 @@ if __name__ == '__main__':
         next_gen.create_mutated_generation(best_chromosome)
 
         # Print mutated generation
-        print("Mutated generation " + str(gen + 1) + ": ")
-        for chromosome in next_gen.chromosome_list:
-            print(chromosome)
-        print('\n')
-
-        print("Theta values: ")
-        for chromosome in next_gen.chromosome_list:
-            print(chromosome.get_theta_list())
-        print('\n')
+        # print("Mutated generation " + str(gen + 1) + ": ")
+        # for chromosome in next_gen.chromosome_list:
+        #     print(chromosome)
+        # print('\n')
+        #
+        # print("Theta values: ")
+        # for chromosome in next_gen.chromosome_list:
+        #     print(chromosome.get_theta_list())
+        # print('\n')
 
         # Check every Chromosome's fitness
         next_gen.run_generation(desired_chance_of_one)
@@ -79,7 +81,7 @@ if __name__ == '__main__':
         min_index = next_gen.fitness_list.index(best_fitness)
 
         best_chromosome = next_gen.chromosome_list[min_index]
-        print("Fitness for best mutated chromosome: " + str(best_fitness) + "\n"
+        print("Fitness for best mutated chromosome in mutation " + str(gen+1) + ": " + str(best_fitness) + "\n"
               + "Best mutated chromosome:\n" + str(best_chromosome))
         print("\n")
 
@@ -93,6 +95,9 @@ if __name__ == '__main__':
 
     circuit = Circuit(best_mutated_chromosome)
     circuit.generate_circuit()
-    print(desired_chance_of_one)
+    print("Desired result: " + str(desired_chance_of_one))
+    print("Outcomes: ")
     circuit.print_ca_outcomes()
+    print("\n")
+    print("Best chromosome found: " + str(best_mutated_chromosome))
     circuit.draw()

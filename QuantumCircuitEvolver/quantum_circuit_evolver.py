@@ -40,7 +40,7 @@ class Chromosome(object):
         self._integer_list: List[int] = []
         self._theta_list: List[float] = []
         self._length: int = 0
-        self._GATES = 5
+        self._GATES = 8
 
     def __repr__(self):
         return str(self._integer_list)
@@ -52,12 +52,13 @@ class Chromosome(object):
         yield from self._integer_list
 
     def set_integer_list(self, integer_list: List[int]):
+        old_integer_list = copy.copy(self._integer_list)
         self.clear()
         # self._length = len(integer_list)
         for integer in integer_list:
             self._integer_list.append(integer)
         self._update_length()
-        self._update_theta_list()
+        self._update_theta_list(old_integer_list, self._integer_list) # TODO fix
 
     def get_integer_list(self) -> List[int]:
         return self._integer_list
@@ -143,7 +144,7 @@ class Chromosome(object):
         for i in range(0, gates):
             int_index = i * 3
 
-            if ((self._integer_list[int_index] in [0, 4, 5]) and
+            if ((self._integer_list[int_index] in [0, 4, 5, 6]) and
                     self._integer_list[int_index + 1] == self._integer_list[int_index + 2]):
 
                 if self._integer_list[int_index + 1] == 0:
@@ -173,7 +174,8 @@ class Generation(object):
 
     def create_mutated_generation(self, parent: Chromosome) -> None:
         self.chromosome_list.clear()
-        for i in range(self._chromosomes):
+        self.chromosome_list.append(parent)
+        for i in range(self._chromosomes-1):
             mutated_chromosome = copy.deepcopy(parent)
             mutated_chromosome.mutate_chromosome()
             self.chromosome_list.append(mutated_chromosome)
@@ -234,6 +236,10 @@ class Circuit(object):
             elif a == 5:
                 theta = self.chromosome.get_theta_list()[i]
                 self.circuit.rxx(theta=theta, qubit1=b, qubit2=c)
+            elif a == 6:
+                self.circuit.swap(b, c)
+            elif a == 7:
+                self.circuit.y(b)
 
         self.circuit.measure(0, 0)
 

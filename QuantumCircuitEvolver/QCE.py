@@ -4,19 +4,23 @@ from quantum_circuit_evolver import *
 # TODO: Documentation and comments
 # TODO: Error and exception handling
 
-if __name__ == '__main__':
-    gates = 5
-    chromosomes = 10
-    # genes = gates * 3
-    generations = 20
-    desired_chance_of_one = [0.5, 0.7, 0.4, 0, 0.2, 0.7, 0.1, 0.9]
-    # desired_chance_of_one = [1, 1, 1, 1, 1, 1, 1, 1]
-    # desired_chance_of_one = [1, 0, 1, 0, 0, 1, 0, 1]
-    # desired_chance_of_one = [0, 0, 0, 0, 1, 1, 1, 1]
+# Add random chromosomes to mutated generations,
+# Add "softer" mutation i.e. just swapping connected qubits
+# Add possibilities to choose different types of mutation
+# Make the FF more punishing for bad solutions
+# Add crossover mutation
 
+if __name__ == '__main__':
+    gates = 10
+    chromosomes = 10
+    generations = 20
+    # desired_chance_of_one = [0.5, 0.7, 0.4, 0, 0.2, 0.7, 0.1, 0.9]
+    desired_chance_of_one = [1, 1, 1, 1, 1, 1, 1, 1]
+    # desired_chance_of_one = [1, 0, 1, 0, 0, 1, 0, 1]
+    # desired_chance_of_one = [1, 0.5, 1, 0, 0, 1, 0.5, 0.5]
 
     # Generate initial generation of chromosomes
-    init_gen = Generation(gates, chromosomes)
+    init_gen = Generation(chromosomes, gates)
     init_gen.create_initial_generation()
 
     print("initial generation: ")
@@ -24,10 +28,10 @@ if __name__ == '__main__':
         print(chromosome)
     print('\n')
 
-    print("Theta values: ")
-    for chromosome in init_gen.chromosome_list:
-        print(chromosome.get_theta_list())
-    print('\n')
+    # print("Theta values: ")
+    # for chromosome in init_gen.chromosome_list:
+    #     print(chromosome.get_theta_list())
+    # print('\n')
 
     print("Circuits: ")
     for chromosome in init_gen.chromosome_list:

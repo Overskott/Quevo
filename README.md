@@ -37,14 +37,6 @@ The table describing int, corresponding gate and if it uses control qubit, yes o
 |  6  | Z       |   N     |
 |  7  | Y       |   N     |
 
- 0  | Hadamard|   N
-     1  | C-NOT   |   Y
-     2  | X       |   N
-     3  | Swap    |   Y
-     4  | RZZ     |   Y
-     5  | RXX     |   Y
-     6  | Z       |   N
-     7  | Y       |   N
  
 
 Some gates (RZZ, RXX) also need an angle value (theta) stored in a separate list. `theta in (0, 2*pi)`

@@ -1,3 +1,5 @@
+# Written by Sebastian T. Overskott 2022. Github link: https://github.com/Overskott/Evolving-quantum-circuits
+
 from quantum_circuit_evolver import *
 
 # TODO: Setting up unit testing
@@ -14,6 +16,7 @@ if __name__ == '__main__':
     gates = 10
     chromosomes = 10
     generations = 20
+
     # desired_chance_of_one = [0.5, 0.7, 0.4, 0, 0.2, 0.7, 0.1, 0.9]
     desired_chance_of_one = [1, 1, 1, 1, 1, 1, 1, 1]
     # desired_chance_of_one = [1, 0, 1, 0, 0, 1, 0, 1]

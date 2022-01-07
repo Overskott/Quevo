@@ -1,3 +1,5 @@
+# Written by Sebastian T. Overskott 2022. Github link: https://github.com/Overskott/Evolving-quantum-circuits
+
 import copy
 import math
 import random
@@ -9,65 +11,115 @@ class Chromosome(object):
     """
     A class used to represent a quantum computer circuit as a list of integers.
 
-    ...
+    The circuit is represented as a list
+    of integers, where each gate is three successive integers i.e.:
+
+    Three gates as list:
+    [2, 0, 1, 3, 1 ,1, 4, 0, 2]
+
+    Gate number:               1  |  2  |  3
+    Gate int representation:  201 | 311 | 402
+
+    The first int is what kind of gate it is (i.e. X-gate, CNOT, Hadamard).
+    The second int is what qubit is this assigned to (0 -> qubit 0, 1 -> qubit 1, ...)
+    The third int is what qubit is controlling the gate. in cases where gates do not have an
+    external controller, this int is ignored.
+
+    The table describing int, corresponding gate and if it uses control qubit, yes or no (Y/N):
+
+    Int |  Gate   | Control
+    ----------------------
+     0  | C-NOT   |   Y
+     1  | X       |   N
+     2  | Hadamard|   N
+     3  | Z       |   N
+     4  | RZZ     |   Y
+     5  | RXX     |   Y
+     6  | Swap    |   Y
+     7  | Y       |   N
+
+    Some gates (RZZ, RXX) also need an angle value (theta) stored in a separate list.
 
     Attributes
     ----------
     _integer_list: List[int]
-        List of integers representing quantum gates. 3 successive integers for one gate.
+        List of integers representing the quantum circuit.
     _theta_list: List[float]
-        A list of angular values for the gates.
-
-    Methods
-    -------
-    generate_gate_string(length) : None
-        Generates a list of random quantum gate integer representations
-        of length = length.
-    mutate_gate_string() : None
-        Randomly changes/replaces one of the gates in the gate representation
-    check_duplicate_qubit_assignment() : None
-        Checks if the randomly generated or mutated circuit is valid. Fixes it
-        if not.
-    set_gate_string(string_list) : None
-        Sets the gate representation from input list.
-    get_gates_string() : list
-        Returns the gate representation as a list
-    clear_string() : None
-        clears the gate representation list
+        A list of angle values for the gates. This list is the same length as number of gates (len(_integer_list) / 3).
+    _length: int
+        The number of integers in the integer representation
+    _.GATES: int
+        Experimental. Use to adjust how many types of quantum gates to include in the circuit during generation.
     """
 
     def __init__(self):
+        """The Chromosome constructor"""
+
         self._integer_list: List[int] = []
         self._theta_list: List[float] = []
         self._length: int = 0
         self._GATES = 8
 
     def __repr__(self):
+        """Returns desired for printing == print(_integer_list)"""
         return str(self._integer_list)
 
     def __len__(self):
+        """Returns the number of int in _integer_list"""
         return self._length
 
     def __iter__(self):
+        """Returns iterateable _integer_list"""
         yield from self._integer_list
 
     def set_integer_list(self, integer_list: List[int]):
+        """
+
+
+        Parameters:
+           integer_list (List[int]): Quantum circuit integer representation.
+
+        """
+
         old_integer_list = copy.copy(self._integer_list)
         self.clear()
         # self._length = len(integer_list)
         for integer in integer_list:
             self._integer_list.append(integer)
         self._update_length()
-        self._update_theta_list(old_integer_list, self._integer_list) # TODO fix
+        self._update_theta_list(old_integer_list, self._integer_list)
 
     def get_integer_list(self) -> List[int]:
+        """Do X and return a list."""
+        """Gets and prints the spreadsheet's header columns
+
+        Parameters
+        ----------
+        file_loc : str
+            The file location of the spreadsheet
+        print_cols : bool, optional
+            A flag used to print the columns to the console (default is False)
+
+        Returns
+        -------
+        list
+            a list of strings representing the header columns
+        """
+
         return self._integer_list
 
-    def get_length(self):
+    def _update_length(self):
+        """Do X and return a list."""
+
+        self._length = len(self._integer_list)
+
+    def get_length(self) -> int:
+        """Returns the number of integers in _integer_list."""
         return self._length
 
-    def _update_length(self):
-        self._length = len(self._integer_list)
+    def get_theta_list(self) -> List[float]:
+        """Do X and return a list."""
+        return self._theta_list
 
     def _generate_theta_list(self):
         self._theta_list.clear()
@@ -81,12 +133,9 @@ class Chromosome(object):
             else:
                 self._theta_list.append(0)
 
-    def get_theta_list(self) -> List[float]:
-        return self._theta_list
-
     def _update_theta_list(self, old, new):
         gates = int(self._length / 3)
-        change_list = self.change_in_theta(old, new)
+        change_list = self._change_in_theta(old, new)
 
         for i in range(0, gates):
             int_index = i * 3
@@ -100,7 +149,7 @@ class Chromosome(object):
             else:
                 self._theta_list[i] = 0
 
-    def change_in_theta(self, old, new):
+    def _change_in_theta(self, old, new):
         binary_list = []
         for i in range(0, self._length):
             if old[i] == new[i]:
@@ -115,6 +164,20 @@ class Chromosome(object):
         self._length = 0
 
     def generate_random_chromosome(self, gates):
+        """Gets and prints the spreadsheet's header columns
+
+                Parameters
+                ----------
+                file_loc : str
+                    The file location of the spreadsheet
+                print_cols : bool, optional
+                    A flag used to print the columns to the console (default is False)
+
+                Returns
+                -------
+                list
+                    a list of strings representing the header columns
+                """
         # Returns a randomly generated string representation of given number of qubits
         for i in range(gates * 3):
             if i % 3 == 0:
@@ -137,6 +200,22 @@ class Chromosome(object):
 
         self.fix_duplicate_qubit_assignment()
         self._update_theta_list(old_integer_list, self._integer_list)
+
+    def mutate_chromosome(self):
+        gates = int(self._length / 3)
+        old_integer_list = copy.copy(self._integer_list)
+
+
+        self.fix_duplicate_qubit_assignment()
+        self._update_theta_list(old_integer_list, self._integer_list)
+
+    def _replace_gate_with_random(self):
+
+        random_index = random.randrange(0, int(self._length/3)) * 3
+
+        self._integer_list[random_index] = random.randrange(0, self._GATES)
+        self._integer_list[random_index + 1] = random.randrange(0, 3)
+        self._integer_list[random_index + 2] = random.randrange(0, 3)
 
     def fix_duplicate_qubit_assignment(self):
         gates = int(self._length / 3)

@@ -186,7 +186,7 @@ class Chromosome(object):
                 self._integer_list.append(random.randrange(0, 3))
 
         self._update_length()
-        self.fix_duplicate_qubit_assignment()
+        self._fix_duplicate_qubit_assignment()
         self._generate_theta_list()
 
     def mutate_chromosome(self):
@@ -198,26 +198,26 @@ class Chromosome(object):
         self._integer_list[random_index + 1] = random.randrange(0, 3)
         self._integer_list[random_index + 2] = random.randrange(0, 3)
 
-        self.fix_duplicate_qubit_assignment()
+        self._fix_duplicate_qubit_assignment()
         self._update_theta_list(old_integer_list, self._integer_list)
 
     def mutate_chromosome(self):
         gates = int(self._length / 3)
         old_integer_list = copy.copy(self._integer_list)
 
+        self._replace_gate_with_random_gate()
 
-        self.fix_duplicate_qubit_assignment()
+        self._fix_duplicate_qubit_assignment()
         self._update_theta_list(old_integer_list, self._integer_list)
 
-    def _replace_gate_with_random(self):
-
+    def _replace_gate_with_random_gate(self):
         random_index = random.randrange(0, int(self._length/3)) * 3
 
         self._integer_list[random_index] = random.randrange(0, self._GATES)
         self._integer_list[random_index + 1] = random.randrange(0, 3)
         self._integer_list[random_index + 2] = random.randrange(0, 3)
 
-    def fix_duplicate_qubit_assignment(self):
+    def _fix_duplicate_qubit_assignment(self):
         gates = int(self._length / 3)
 
         for i in range(0, gates):

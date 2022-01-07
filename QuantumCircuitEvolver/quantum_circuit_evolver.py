@@ -29,13 +29,13 @@ class Chromosome(object):
 
     Int |  Gate   | Control
     ----------------------
-     0  | C-NOT   |   Y
-     1  | X       |   N
-     2  | Hadamard|   N
-     3  | Z       |   N
+     0  | Hadamard|   N
+     1  | C-NOT   |   Y
+     2  | X       |   N
+     3  | Swap    |   Y
      4  | RZZ     |   Y
      5  | RXX     |   Y
-     6  | Swap    |   Y
+     6  | Z       |   N
      7  | Y       |   N
 
     Some gates (RZZ, RXX) also need an angle value (theta) stored in a separate list.
@@ -163,12 +163,13 @@ class Chromosome(object):
         self._theta_list.clear()
         self._length = 0
 
-    def generate_random_chromosome(self, gates):
+    def generate_random_chromosome(self, gates: int):
+        self.clear()
         """Gets and prints the spreadsheet's header columns
 
                 Parameters
                 ----------
-                file_loc : str
+                gates : str
                     The file location of the spreadsheet
                 print_cols : bool, optional
                     A flag used to print the columns to the console (default is False)
@@ -189,23 +190,26 @@ class Chromosome(object):
         self._fix_duplicate_qubit_assignment()
         self._generate_theta_list()
 
+    # def mutate_chromosome(self):
+    #     gates = int(self._length / 3)
+    #     old_integer_list = copy.copy(self._integer_list)
+    #     random_index = random.randrange(0, gates) * 3
+    #
+    #     self._integer_list[random_index] = random.randrange(0, self._GATES)
+    #     self._integer_list[random_index + 1] = random.randrange(0, 3)
+    #     self._integer_list[random_index + 2] = random.randrange(0, 3)
+    #
+    #     self._fix_duplicate_qubit_assignment()
+    #     self._update_theta_list(old_integer_list, self._integer_list)
+
     def mutate_chromosome(self):
-        gates = int(self._length / 3)
-        old_integer_list = copy.copy(self._integer_list)
-        random_index = random.randrange(0, gates) * 3
-
-        self._integer_list[random_index] = random.randrange(0, self._GATES)
-        self._integer_list[random_index + 1] = random.randrange(0, 3)
-        self._integer_list[random_index + 2] = random.randrange(0, 3)
-
-        self._fix_duplicate_qubit_assignment()
-        self._update_theta_list(old_integer_list, self._integer_list)
-
-    def mutate_chromosome(self):
-        gates = int(self._length / 3)
+        # gates = int(self._length / 3)
         old_integer_list = copy.copy(self._integer_list)
 
-        self._replace_gate_with_random_gate()
+        if random.randrange(0, 100) > 20:
+            self._replace_gate_with_random_gate()
+        else:
+            self._replace_with_random_chromosome()
 
         self._fix_duplicate_qubit_assignment()
         self._update_theta_list(old_integer_list, self._integer_list)
@@ -217,13 +221,22 @@ class Chromosome(object):
         self._integer_list[random_index + 1] = random.randrange(0, 3)
         self._integer_list[random_index + 2] = random.randrange(0, 3)
 
+    def _replace_with_random_chromosome(self):
+        gates = int(self._length/3)
+        self.clear()
+        self.generate_random_chromosome(gates)
+
+    def _change_qubit_connections(self):
+        # TODO: implement
+        pass
+
     def _fix_duplicate_qubit_assignment(self):
         gates = int(self._length / 3)
 
         for i in range(0, gates):
             int_index = i * 3
 
-            if ((self._integer_list[int_index] in [0, 4, 5, 6]) and
+            if ((self._integer_list[int_index] in [1, 3, 4, 5]) and
                     self._integer_list[int_index + 1] == self._integer_list[int_index + 2]):
 
                 if self._integer_list[int_index + 1] == 0:
@@ -274,7 +287,7 @@ class Circuit(object):
     def __init__(self, chromosome: Chromosome):
         self.chromosome = chromosome
         self.circuit = QuantumCircuit(3, 1)
-        self.shots = 1024
+        self.shots = 1000
         self.STARTING_STATES = [[0, 0, 0],
                                 [0, 0, 1],
                                 [0, 1, 0],
@@ -291,7 +304,6 @@ class Circuit(object):
 
     def generate_circuit(self):
         # Parsing integer string and converting it to gates
-        self.clear_circuit()
         gates = int(self.chromosome.get_length() / 3)
 
         for i in range(0, gates):
@@ -302,13 +314,13 @@ class Circuit(object):
             c = self.chromosome.get_integer_list()[gate_index + 2]
 
             if a == 0:
-                self.circuit.cx(b, c)
-            elif a == 1:
-                self.circuit.x(b)
-            elif a == 2:
                 self.circuit.h(b)
+            elif a == 1:
+                self.circuit.cx(b, c)
+            elif a == 2:
+                self.circuit.x(b)
             elif a == 3:
-                self.circuit.z(b)
+                self.circuit.swap(b, c)
             elif a == 4:
                 theta = self.chromosome.get_theta_list()[i]
                 self.circuit.rzz(theta=theta, qubit1=b, qubit2=c)
@@ -316,17 +328,17 @@ class Circuit(object):
                 theta = self.chromosome.get_theta_list()[i]
                 self.circuit.rxx(theta=theta, qubit1=b, qubit2=c)
             elif a == 6:
-                self.circuit.swap(b, c)
+                self.circuit.z(b)
             elif a == 7:
                 self.circuit.y(b)
 
         self.circuit.measure(0, 0)
 
-    def calculate_error(self, desired_outcome):
+    def calculate_error(self, desired_chance_of_one):
         counts = self.run_simulator()
         if '0' in counts:
             chance_of_one = (self.shots - counts['0']) / self.shots
-            error = abs(desired_outcome - chance_of_one)
+            error = abs(desired_chance_of_one - chance_of_one)
         else:
             error = 1
         return error
@@ -340,24 +352,24 @@ class Circuit(object):
 
     def find_chromosome_fitness(self, desired_chance_of_one: List[float]) -> float:
         fitness = 0
-        for i in range(0, len(self.STARTING_STATES)):
+        index = 0
+        for triplet in self.STARTING_STATES:
             self.clear_circuit()
-            # self.chromosome.clear()
-            self.initialize_initial_states(self.STARTING_STATES[i])
-            # self.chromosome = chromosome
+            self.initialize_initial_states(triplet)
             self.generate_circuit()
-            error = self.calculate_error(desired_chance_of_one[i])
+            # self.draw() # uncomment to see circuit drawings with initial states
+            error = self.calculate_error(desired_chance_of_one[index])
             fitness = fitness + error
-        return fitness
+            index = index + 1
+        return math.sqrt(fitness)
 
     def print_ca_outcomes(self):
         for i in range(0, len(self.STARTING_STATES)):
             self.clear_circuit()
-            # self.chromosome.clear()
             self.initialize_initial_states(self.STARTING_STATES[i])
-            # self.chromosome = chromosome
             self.generate_circuit()
-            print(str(self.STARTING_STATES[i]) + "| " + str(self.run_simulator()))
+            print(str(self.STARTING_STATES[i]) + ": " + str(self.run_simulator()))
+            self.clear_circuit()
 
     def initialize_initial_states(self, triplet: list):
         if triplet[0] == 1:

@@ -1,4 +1,4 @@
-# Written by Sebastian T. Overskott 2022. Github link: https://github.com/Overskott/Evolving-quantum-circuits
+# Written by Sebastian T. Overskott, 2022. Github link: https://github.com/Overskott/Evolving-quantum-circuits
 
 import copy
 import math
@@ -27,16 +27,16 @@ class Chromosome(object):
 
     The table describing int, corresponding gate and if it uses control qubit, yes or no (Y/N):
 
-    Int |  Gate   | Control
-    ----------------------
-     0  | Hadamard|   N
-     1  | C-NOT   |   Y
-     2  | X       |   N
-     3  | Swap    |   Y
-     4  | RZZ     |   Y
-     5  | RXX     |   Y
-     6  | Z       |   N
-     7  | Y       |   N
+    | Int |  Gate   | Control |
+    | --- |:-------:| -------:|
+    |  0  | Hadamard|   N     |
+    |  1  | C-NOT   |   Y     |
+    |  2  |   X 	|   N     |
+    |  3  | Swap    |   Y     |
+    |  4  | RZZ     |   Y     |
+    |  5  | RXX     |   Y     |
+    |  6  | Z       |   N     |
+    |  7  | Y       |   N     |
 
     Some gates (RZZ, RXX) also need an angle value (theta) stored in a separate list.
 
@@ -48,11 +48,11 @@ class Chromosome(object):
         A list of angle values for the gates. This list is the same length as number of gates (len(_integer_list) / 3).
     _length: int
         The number of integers in the integer representation
-    _.GATES: int
+    _GATES: int
         Experimental. Use to adjust how many types of quantum gates to include in the circuit during generation.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """The Chromosome constructor"""
 
         self._integer_list: List[int] = []
@@ -60,57 +60,38 @@ class Chromosome(object):
         self._length: int = 0
         self._GATES = 8
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """Returns desired for printing == print(_integer_list)"""
         return str(self._integer_list)
 
-    def __len__(self):
+    def __len__(self) -> int:
         """Returns the number of int in _integer_list"""
         return self._length
 
-    def __iter__(self):
-        """Returns iterateable _integer_list"""
+    def __iter__(self) -> List[int]:
+        """Returns the iterable _integer_list"""
         yield from self._integer_list
 
     def set_integer_list(self, integer_list: List[int]):
         """
-
+        Changes the chromosome's integer list to the one given as parameter.
 
         Parameters:
-           integer_list (List[int]): Quantum circuit integer representation.
-
+           integer_list (List[int]): Quantum circuit integer representation as list.
         """
-
         old_integer_list = copy.copy(self._integer_list)
         self.clear()
-        # self._length = len(integer_list)
         for integer in integer_list:
             self._integer_list.append(integer)
         self._update_length()
         self._update_theta_list(old_integer_list, self._integer_list)
 
     def get_integer_list(self) -> List[int]:
-        """Do X and return a list."""
-        """Gets and prints the spreadsheet's header columns
-
-        Parameters
-        ----------
-        file_loc : str
-            The file location of the spreadsheet
-        print_cols : bool, optional
-            A flag used to print the columns to the console (default is False)
-
-        Returns
-        -------
-        list
-            a list of strings representing the header columns
-        """
-
+        """Returns the list of integers representing the circuit"""
         return self._integer_list
 
-    def _update_length(self):
-        """Do X and return a list."""
-
+    def _update_length(self) -> None:
+        """Sets _length to the number of integers in _integer_list"""
         self._length = len(self._integer_list)
 
     def get_length(self) -> int:
@@ -118,10 +99,11 @@ class Chromosome(object):
         return self._length
 
     def get_theta_list(self) -> List[float]:
-        """Do X and return a list."""
+        """Returns the list of angles in the circuit"""
         return self._theta_list
 
-    def _generate_theta_list(self):
+    def _generate_theta_list(self) -> None:
+        """Generates a list of angles based on the current list of integers"""
         self._theta_list.clear()
         gates = int(self._length / 3)
 
@@ -133,9 +115,19 @@ class Chromosome(object):
             else:
                 self._theta_list.append(0)
 
-    def _update_theta_list(self, old, new):
+    def _update_theta_list(self, old_list: List[int], new_list: List[int]) -> None:
+        """
+        Updates the list of theta values. Used when a _integer_list is changed.
+
+        Parameters
+        ----------
+        old_list : List[int]
+            The list before change to list happened.
+        new_list : List[int]
+            The new_list list with one or more changed integers.
+        """
         gates = int(self._length / 3)
-        change_list = self._change_in_theta(old, new)
+        change_list = self._change_in_theta(old_list, new_list)
 
         for i in range(0, gates):
             int_index = i * 3
@@ -149,37 +141,49 @@ class Chromosome(object):
             else:
                 self._theta_list[i] = 0
 
-    def _change_in_theta(self, old, new):
+    def _change_in_theta(self, old_list, new_list) -> List[int]:
+        """
+        Compares the old_list to the new_list and returns a binary string where
+        1 indicates a change in the theta value for that gate, an 0 indicates no
+        change in theta.
+
+        Parameters
+        ----------
+        old_list : List[int]
+            The list before change to list happened.
+        new_list : List[int]
+            The new_list list with one or more changed integers.
+
+        Returns
+        -------
+        List[int]
+            a list of 1 or 0.
+        """
         binary_list = []
         for i in range(0, self._length):
-            if old[i] == new[i]:
+            if old_list[i] == new_list[i]:
                 binary_list.append(0)
             else:
                 binary_list.append(1)
         return binary_list
 
-    def clear(self):
+    def clear(self) -> None:
+        """Clears chromosome lists"""
         self._integer_list.clear()
         self._theta_list.clear()
         self._length = 0
 
     def generate_random_chromosome(self, gates: int):
+        """
+        Generates a random list of integers representing a quantum circuit with
+        the parameter "gates" number of gates
+
+        Parameters
+        ----------
+        gates : int
+            The number of gates in the generated circuit representation.
+        """
         self.clear()
-        """Gets and prints the spreadsheet's header columns
-
-                Parameters
-                ----------
-                gates : str
-                    The file location of the spreadsheet
-                print_cols : bool, optional
-                    A flag used to print the columns to the console (default is False)
-
-                Returns
-                -------
-                list
-                    a list of strings representing the header columns
-                """
-        # Returns a randomly generated string representation of given number of qubits
         for i in range(gates * 3):
             if i % 3 == 0:
                 self._integer_list.append(random.randrange(0, self._GATES))
@@ -250,14 +254,49 @@ class Chromosome(object):
 
 
 class Generation(object):
+    """
+    This class represents a collection of chromosomes. The Collection is called a
+    generation.
 
-    def __init__(self, chromosomes, gates):
+    Attributes
+    ----------
+    chromosome_list: List[int]
+        List of chromosomes that habits the generation.
+    fitness_list: List[float]
+        list of fitness scores corresponding to the chromosomes in chromosome_list.
+    _chromosomes: int
+        The number of chromosomes in the generation
+    _gates: int
+        Number of gates in each chromosome.
+    """
+
+    def __init__(self, chromosomes: int, gates: int) -> None:
+        """
+        The Generation constructor.
+
+        Parameters
+        ----------
+        chromosomes (int):
+            Number of chromosomes in the generation.
+        gates (int):
+            Number of gates in each chromosome.
+        """
         self.chromosome_list: List[Chromosome] = []
         self.fitness_list: List[float] = []
         self._chromosomes: int = chromosomes
         self._gates: int = gates
 
     def create_initial_generation(self) -> None:
+        """
+        The Generation constructor.
+
+        Parameters
+        ----------
+        chromosomes (int):
+            Number of chromosomes in the generation.
+        gates (int):
+            Number of gates in each chromosome.
+        """
         self.chromosome_list.clear()
         for i in range(self._chromosomes):
             chromosome = Chromosome()
@@ -265,6 +304,16 @@ class Generation(object):
             self.chromosome_list.append(chromosome)
 
     def create_mutated_generation(self, parent: Chromosome) -> None:
+        """
+        The Generation constructor.
+
+        Parameters
+        ----------
+        chromosomes (int):
+            Number of chromosomes in the generation.
+        gates (int):
+            Number of gates in each chromosome.
+        """
         self.chromosome_list.clear()
         self.chromosome_list.append(parent)
         for i in range(self._chromosomes-1):
@@ -273,6 +322,16 @@ class Generation(object):
             self.chromosome_list.append(mutated_chromosome)
 
     def run_generation(self, desired_outcome: List[float]) -> None:
+        """
+        The Generation constructor.
+
+        Parameters
+        ----------
+        chromosomes (int):
+            Number of chromosomes in the generation.
+        gates (int):
+            Number of gates in each chromosome.
+        """
 
         for chromosome in self.chromosome_list:
             circuit = Circuit(chromosome)
@@ -285,6 +344,12 @@ class Circuit(object):
     circuit """
 
     def __init__(self, chromosome: Chromosome):
+        """
+        Changes the chromosome's integer list to the one given as parameter.
+
+        Parameters:
+           integer_list (List[int]): Quantum circuit integer representation as list.
+        """
         self.chromosome = chromosome
         self.circuit = QuantumCircuit(3, 1)
         self.shots = 1000

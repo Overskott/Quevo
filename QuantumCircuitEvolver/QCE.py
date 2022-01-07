@@ -11,18 +11,18 @@ from quantum_circuit_evolver import *
 # Add crossover mutation
 
 if __name__ == '__main__':
-    gates = 10
+    gates = 15
     chromosomes = 10
-    generations = 20
+    generations = 50
 
-    # desired_chance_of_one = [0.5, 0.7, 0.4, 0, 0.2, 0.7, 0.1, 0.9]
+    desired_chance_of_one = [0.5, 0.7, 0.4, 0, 0.2, 0.7, 0.1, 0.9]
     # desired_chance_of_one = [1, 1, 1, 1, 1, 1, 1, 1]
     # desired_chance_of_one = [0, 0, 0, 0, 0, 0, 0, 0]
-    desired_chance_of_one = [1, 0, 1, 0, 0, 1, 0, 1]
+    # desired_chance_of_one = [1, 0, 1, 0, 0, 1, 0, 1]
     # desired_chance_of_one = [1, 0.5, 1, 0, 0, 1, 0.5, 0.5]
 
     # Generate initial generation of chromosomes
-    init_gen = Generation(chromosomes, gates)
+    init_gen = Generation(100, gates)
     init_gen.create_initial_generation()
 
     print("initial generation: ")
@@ -96,7 +96,7 @@ if __name__ == '__main__':
         print("------------------------------------------------------------------------------")
         print("\n")
 
-        # Check if there is a new best chromosome
+        # Check if there is a new_list best chromosome
         if final_fitness > best_fitness:
             final_fitness = best_fitness
             best_mutated_chromosome = best_chromosome

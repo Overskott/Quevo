@@ -13,11 +13,13 @@ from quantum_circuit_evolver import *
 if __name__ == '__main__':
     gates = 10
     chromosomes = 10
-    generations = 40
+    generations = 100
 
+    # desired_chance_of_one = [1, 0, 1, 0, 0, 1, 0, 1] # Very good results
     # desired_chance_of_one = [0.5, 0.7, 0.4, 0.0, 0.2, 0.7, 0.1, 0.9] # Good results
     # desired_chance_of_one = [1, 1, 1, 1, 1, 1, 1, 1] # Bad results
-    # desired_chance_of_one = [1, 0, 1, 0, 0, 1, 0, 1] # Very good results
+    desired_chance_of_one = [0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8] # Bad result
+    # desired_chance_of_one = [0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5] # very good
     # desired_chance_of_one = [1.0, 0.5, 1.0, 0.0, 0.0, 1.0, 0.5, 0.5] # Ok results
 
     # Generate initial generation of chromosomes
@@ -43,9 +45,9 @@ if __name__ == '__main__':
 
     init_gen.run_generation(desired_chance_of_one)
 
-    for fitness in init_gen.fitness_list:
-        print(fitness)
-    print("\n")
+    # for fitness in init_gen.fitness_list:
+    #     print(fitness)
+    # print("\n")
 
     best_fitness = min(init_gen.fitness_list)
     min_index = init_gen.fitness_list.index(best_fitness)
@@ -59,6 +61,7 @@ if __name__ == '__main__':
     # Mutation loop
 
     best_mutated_chromosome = Chromosome()
+    best_mutated_chromosome.set_integer_list(best_chromosome.get_integer_list())
     final_fitness = best_fitness
 
     for gen in range(0, generations):
@@ -99,6 +102,8 @@ if __name__ == '__main__':
         if final_fitness > best_fitness:
             final_fitness = best_fitness
             best_mutated_chromosome = best_chromosome
+            if best_fitness < 0.01:
+                break
             print("New best!")
             print("------------------------------------------------------------------------------")
             print("\n")
@@ -114,5 +119,4 @@ if __name__ == '__main__':
     print("\n")
 
     circuit.generate_circuit()
-    circuit.print_counts(desired_chance_of_one)
     circuit.draw()

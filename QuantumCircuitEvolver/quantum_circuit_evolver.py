@@ -35,7 +35,7 @@ class Chromosome(object):
     |  3  | Swap    |   Y     |
     |  4  | RZZ     |   Y     |
     |  5  | RXX     |   Y     |
-    |  6  | Z       |   N     |
+    |  6  | Toffoli |   Y     |
     |  7  | Y       |   N     |
 
     Some gates (RZZ, RXX) also need an angle value (theta) stored in a separate list.
@@ -58,7 +58,7 @@ class Chromosome(object):
         self._integer_list: List[int] = []
         self._theta_list: List[float] = []
         self._length: int = 0
-        self._GATES = 6
+        self._GATES = 8
 
     def __repr__(self) -> str:
         """Returns desired for printing == print(_integer_list)"""
@@ -84,7 +84,10 @@ class Chromosome(object):
         for integer in integer_list:
             self._integer_list.append(integer)
         self._update_length()
-        self._update_theta_list(old_integer_list, self._integer_list)
+        if not old_integer_list:
+            self._generate_theta_list()
+        else:
+            self._update_theta_list(old_integer_list, self._integer_list)
 
     def get_integer_list(self) -> List[int]:
         """Returns the list of integers representing the circuit"""
@@ -198,7 +201,7 @@ class Chromosome(object):
         # gates = int(self._length / 3)
         old_integer_list = copy.copy(self._integer_list)
 
-        if random.randrange(0, 100) > 20:
+        if random.randrange(0, 100) > 40:
             self._replace_gate_with_random_gate()
         else:
             self._replace_with_random_chromosome()
@@ -422,15 +425,16 @@ class Circuit(object):
             self.generate_circuit()
             # self.draw() # uncomment to see circuit drawings with initial states
             difference = self.calculate_difference(desired_chance_of_one[index])
-            fitness = fitness + difference
+            fitness = fitness + (difference * 100)**2
             index = index + 1
-        return fitness # math.sqrt(fitness)
+        return math.sqrt(fitness)/ 100
 
     def print_ca_outcomes(self, desired_chance_of_one: List[float]):
         print("Initial State | Desired outcome | Actual outcome  | Difference")
         index = 0
+        self.clear_circuit()
         for triplet in self.STARTING_STATES:
-            self.clear_circuit()
+
             self.initialize_initial_states(triplet)
             self.generate_circuit()
             chance_of_one = self.calculate_probability_of_one()
@@ -439,8 +443,8 @@ class Circuit(object):
 
             chance_format = "{:.2f}".format(chance_of_one)
             diff_format = "{:.2f}".format(difference)
-            print(str(self.STARTING_STATES[index]) + "             " + str(desired_chance_of_one[index]) + "                "
-                  + chance_format + "              " + diff_format)
+            print(str(self.STARTING_STATES[index]) + "              " + str(float(desired_chance_of_one[index])) +
+                  "               " + chance_format + "           " + diff_format)
             self.clear_circuit()
             index = index + 1
 

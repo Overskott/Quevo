@@ -58,7 +58,7 @@ class Chromosome(object):
         self._integer_list: List[int] = []
         self._theta_list: List[float] = []
         self._length: int = 0
-        self._GATES = 8
+        self._GATES = 6
 
     def __repr__(self) -> str:
         """Returns desired for printing == print(_integer_list)"""
@@ -387,27 +387,31 @@ class Circuit(object):
                 theta = self.chromosome.get_theta_list()[i]
                 self.circuit.rxx(theta=theta, qubit1=b, qubit2=c)
             elif a == 6:
-                self.circuit.z(b)
+                target = b
+                if target == 1:
+                    self.circuit.toffoli(0, 2, target)
+                else:
+                    self.circuit.toffoli(abs(target-1), abs(target-2), target)
             elif a == 7:
                 self.circuit.y(b)
 
         self.circuit.measure(0, 0)
 
-    def calculate_error(self, desired_chance_of_one):
+    def calculate_difference(self, desired_chance_of_one):
+        chance_of_one = self.calculate_probability_of_one()
+
+        difference = abs(desired_chance_of_one - chance_of_one)
+
+        return difference
+
+    def calculate_probability_of_one(self):
         counts = self.run_simulator()
         if '0' in counts:
             chance_of_one = (self.shots - counts['0']) / self.shots
-            error = abs(desired_chance_of_one - chance_of_one)
         else:
-            error = 1
-        return error
+            chance_of_one = 1
 
-    def run_simulator(self):
-        aer_sim = Aer.get_backend('aer_simulator')
-        # aer_sim = Aer.get_backend('statevector_simulator')
-        quantum_circuit = assemble(self.circuit, shots=self.shots)
-        job = aer_sim.run(quantum_circuit)
-        return job.result().get_counts()
+        return chance_of_one
 
     def find_chromosome_fitness(self, desired_chance_of_one: List[float]) -> float:
         fitness = 0
@@ -417,23 +421,36 @@ class Circuit(object):
             self.initialize_initial_states(triplet)
             self.generate_circuit()
             # self.draw() # uncomment to see circuit drawings with initial states
-            error = self.calculate_error(desired_chance_of_one[index])
-            fitness = fitness + error
+            difference = self.calculate_difference(desired_chance_of_one[index])
+            fitness = fitness + difference
             index = index + 1
-        return math.sqrt(fitness)
+        return fitness # math.sqrt(fitness)
 
     def print_ca_outcomes(self, desired_chance_of_one: List[float]):
-        print("Initial State | Desired outcome | Actual outcome")
+        print("Initial State | Desired outcome | Actual outcome  | Difference")
         index = 0
         for triplet in self.STARTING_STATES:
             self.clear_circuit()
             self.initialize_initial_states(triplet)
             self.generate_circuit()
-            error = self.calculate_error(desired_chance_of_one[index])
-            formated = "{:.2f}".format(error)
-            print(str(self.STARTING_STATES[index]) + "          " + str(desired_chance_of_one[index]) + "              "
-                  + formated)
+            chance_of_one = self.calculate_probability_of_one()
+
+            difference = abs(desired_chance_of_one[index]-chance_of_one)
+
+            chance_format = "{:.2f}".format(chance_of_one)
+            diff_format = "{:.2f}".format(difference)
+            print(str(self.STARTING_STATES[index]) + "             " + str(desired_chance_of_one[index]) + "                "
+                  + chance_format + "              " + diff_format)
             self.clear_circuit()
+            index = index + 1
+
+    def print_counts(self, desired_chance_of_one: List[float]):
+        index = 0
+        for triplet in self.STARTING_STATES:
+            self.clear_circuit()
+            self.initialize_initial_states(triplet)
+            self.generate_circuit()
+            print(self.run_simulator())
             index = index + 1
 
     def initialize_initial_states(self, triplet: List[int]):
@@ -443,6 +460,13 @@ class Circuit(object):
             self.circuit.x(1)
         if triplet[2] == 1:
             self.circuit.x(2)
+
+    def run_simulator(self):
+        aer_sim = Aer.get_backend('aer_simulator')
+        # aer_sim = Aer.get_backend('statevector_simulator')
+        quantum_circuit = assemble(self.circuit, shots=self.shots)
+        job = aer_sim.run(quantum_circuit)
+        return job.result().get_counts()
 
     def draw(self):
         print(self.circuit.draw(output='text'))

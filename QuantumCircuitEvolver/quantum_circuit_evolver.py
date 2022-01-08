@@ -194,18 +194,6 @@ class Chromosome(object):
         self._fix_duplicate_qubit_assignment()
         self._generate_theta_list()
 
-    # def mutate_chromosome(self):
-    #     gates = int(self._length / 3)
-    #     old_integer_list = copy.copy(self._integer_list)
-    #     random_index = random.randrange(0, gates) * 3
-    #
-    #     self._integer_list[random_index] = random.randrange(0, self._GATES)
-    #     self._integer_list[random_index + 1] = random.randrange(0, 3)
-    #     self._integer_list[random_index + 2] = random.randrange(0, 3)
-    #
-    #     self._fix_duplicate_qubit_assignment()
-    #     self._update_theta_list(old_integer_list, self._integer_list)
-
     def mutate_chromosome(self):
         # gates = int(self._length / 3)
         old_integer_list = copy.copy(self._integer_list)
@@ -288,14 +276,7 @@ class Generation(object):
 
     def create_initial_generation(self) -> None:
         """
-        The Generation constructor.
-
-        Parameters
-        ----------
-        chromosomes (int):
-            Number of chromosomes in the generation.
-        gates (int):
-            Number of gates in each chromosome.
+        Populates the generation with chromosomes.
         """
         self.chromosome_list.clear()
         for i in range(self._chromosomes):
@@ -305,7 +286,7 @@ class Generation(object):
 
     def create_mutated_generation(self, parent: Chromosome) -> None:
         """
-        The Generation constructor.
+        Populates the generation with mutated chromosomes.
 
         Parameters
         ----------
@@ -340,8 +321,21 @@ class Generation(object):
 
 
 class Circuit(object):
-    """ Generates a string of 3 * number_of_gates length number representing gate types and position in a quantum
-    circuit """
+    """
+    Generates a string of 3 * number_of_gates length number representing gate types and position in a quantum
+    circuit
+
+    Attributes
+    ----------
+    chromosome (Chromosome):
+        The integer string representation of the circuit.
+    circuit (Qiskit.QuantumCircuit):
+        Qiskit representation of the chromosome. A circuit that can be run and simulated.
+    shots (int):
+        Number of runs in the qiskit quantum circuit simulator.
+    STARTING_STATES (List[list]):
+        Possible cellular automata initial conditions for the 1D Von Neumann neighborhood.
+    """
 
     def __init__(self, chromosome: Chromosome):
         """
@@ -428,15 +422,21 @@ class Circuit(object):
             index = index + 1
         return math.sqrt(fitness)
 
-    def print_ca_outcomes(self):
-        for i in range(0, len(self.STARTING_STATES)):
+    def print_ca_outcomes(self, desired_chance_of_one: List[float]):
+        print("Initial State | Desired outcome | Actual outcome")
+        index = 0
+        for triplet in self.STARTING_STATES:
             self.clear_circuit()
-            self.initialize_initial_states(self.STARTING_STATES[i])
+            self.initialize_initial_states(triplet)
             self.generate_circuit()
-            print(str(self.STARTING_STATES[i]) + ": " + str(self.run_simulator()))
+            error = self.calculate_error(desired_chance_of_one[index])
+            formated = "{:.2f}".format(error)
+            print(str(self.STARTING_STATES[index]) + "          " + str(desired_chance_of_one[index]) + "              "
+                  + formated)
             self.clear_circuit()
+            index = index + 1
 
-    def initialize_initial_states(self, triplet: list):
+    def initialize_initial_states(self, triplet: List[int]):
         if triplet[0] == 1:
             self.circuit.x(0)
         if triplet[1] == 1:

@@ -11,18 +11,18 @@ from quantum_circuit_evolver import *
 # Add crossover mutation
 
 if __name__ == '__main__':
-    gates = 15
-    chromosomes = 10
-    generations = 50
+    gates = 10
+    chromosomes = 5
+    generations = 20
 
-    desired_chance_of_one = [0.5, 0.7, 0.4, 0, 0.2, 0.7, 0.1, 0.9]
-    # desired_chance_of_one = [1, 1, 1, 1, 1, 1, 1, 1]
+    # desired_chance_of_one = [0.5, 0.7, 0.4, 0.0, 0.2, 0.7, 0.1, 0.9]
+    desired_chance_of_one = [1, 1, 1, 1, 1, 1, 1, 1]
     # desired_chance_of_one = [0, 0, 0, 0, 0, 0, 0, 0]
     # desired_chance_of_one = [1, 0, 1, 0, 0, 1, 0, 1]
-    # desired_chance_of_one = [1, 0.5, 1, 0, 0, 1, 0.5, 0.5]
+    # desired_chance_of_one = [1.0, 0.5, 1.0, 0.0, 0.0, 1.0, 0.5, 0.5]
 
     # Generate initial generation of chromosomes
-    init_gen = Generation(100, gates)
+    init_gen = Generation(10, gates)
     init_gen.create_initial_generation()
 
     print("initial generation: ")
@@ -30,10 +30,10 @@ if __name__ == '__main__':
         print(chromosome)
     print('\n')
 
-    # print("Theta values: ")
-    # for chromosome in init_gen.chromosome_list:
-    #     print(chromosome.get_theta_list())
-    # print('\n')
+    print("Theta values: ")
+    for chromosome in init_gen.chromosome_list:
+        print(chromosome.get_theta_list())
+    print('\n')
 
     # print("Circuits: ")
     # for chromosome in init_gen.chromosome_list:
@@ -78,10 +78,10 @@ if __name__ == '__main__':
         #     print(chromosome)
         # print('\n')
         #
-        # print("Theta values: ")
-        # for chromosome in next_gen.chromosome_list:
-        #     print(chromosome.get_theta_list())
-        # print('\n')
+        print("Theta values: ")
+        for chromosome in next_gen.chromosome_list:
+            print(chromosome.get_theta_list())
+        print('\n')
 
         # Check every Chromosome's fitness
         next_gen.run_generation(desired_chance_of_one)
@@ -109,9 +109,9 @@ if __name__ == '__main__':
 
     circuit = Circuit(best_mutated_chromosome)
 
-    print("Desired result: " + str(desired_chance_of_one))
-    print("Outcomes: ")
-    circuit.print_ca_outcomes()
+    # print("Desired result: " + str(desired_chance_of_one))
+    # print("Outcomes: ")
+    circuit.print_ca_outcomes(desired_chance_of_one)
     print("\n")
     print("Best chromosome found: " + str(best_mutated_chromosome))
     circuit.generate_circuit()

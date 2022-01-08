@@ -13,13 +13,12 @@ from quantum_circuit_evolver import *
 if __name__ == '__main__':
     gates = 10
     chromosomes = 10
-    generations = 20
+    generations = 40
 
-    desired_chance_of_one = [0.5, 0.7, 0.4, 0.0, 0.2, 0.7, 0.1, 0.9]
-    # desired_chance_of_one = [1, 1, 1, 1, 1, 1, 1, 1]
-    # desired_chance_of_one = [0, 0, 0, 0, 0, 0, 0, 0]
-    # desired_chance_of_one = [1, 0, 1, 0, 0, 1, 0, 1]
-    # desired_chance_of_one = [1.0, 0.5, 1.0, 0.0, 0.0, 1.0, 0.5, 0.5]
+    # desired_chance_of_one = [0.5, 0.7, 0.4, 0.0, 0.2, 0.7, 0.1, 0.9] # Good results
+    # desired_chance_of_one = [1, 1, 1, 1, 1, 1, 1, 1] # Bad results
+    # desired_chance_of_one = [1, 0, 1, 0, 0, 1, 0, 1] # Very good results
+    # desired_chance_of_one = [1.0, 0.5, 1.0, 0.0, 0.0, 1.0, 0.5, 0.5] # Ok results
 
     # Generate initial generation of chromosomes
     init_gen = Generation(10, gates)

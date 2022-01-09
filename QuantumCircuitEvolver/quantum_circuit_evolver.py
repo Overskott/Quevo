@@ -163,6 +163,7 @@ class Chromosome(object):
         List[int]
             a list of 1 or 0.
         """
+
         binary_list = []
         for i in range(0, self._length):
             if old_list[i] == new_list[i]:
@@ -177,7 +178,7 @@ class Chromosome(object):
         self._theta_list.clear()
         self._length = 0
 
-    def generate_random_chromosome(self, gates: int):
+    def generate_random_chromosome(self, gates: int) -> None:
         """
         Generates a random list of integers representing a quantum circuit with
         the parameter "gates" number of gates
@@ -187,6 +188,7 @@ class Chromosome(object):
         gates : int
             The number of gates in the generated circuit representation.
         """
+
         self.clear()
         for i in range(gates * 3):
             if i % 3 == 0:
@@ -198,20 +200,22 @@ class Chromosome(object):
         self._fix_duplicate_qubit_assignment()
         self._generate_theta_list()
 
-    def mutate_chromosome(self):
+    def mutate_chromosome(self, probability: int = 40) -> None:
         """
-        Generates a random list of integers representing a quantum circuit with
-        the parameter "gates" number of gates
+        Mutates the chromosome. Mutation can be of either replacing a random gate in the chromosome
+        with a randomly generated new one, or replacing the chromosome by a randomly generated new one.
+        Type of mutation is selected by probability.
 
         Parameters
         ----------
-        gates : int
-            The number of gates in the generated circuit representation.
+        probability : (int) optional
+            Value Between 0 and 100. The probability of replacing a gate.
+            The probability of replacing the whole chromosome is 1-probability
         """
-        # gates = int(self._length / 3)
+
         old_integer_list = copy.copy(self._integer_list)
 
-        if random.randrange(0, 100) > 40:
+        if random.randrange(0, 100) > probability:
             self._replace_gate_with_random_gate()
         else:
             self._replace_with_random_chromosome()
@@ -219,23 +223,33 @@ class Chromosome(object):
         self._fix_duplicate_qubit_assignment()
         self._update_theta_list(old_integer_list, self._integer_list)
 
-    def _replace_gate_with_random_gate(self):
+    def _replace_gate_with_random_gate(self) -> None:
+        """
+        Randomly selects a gate in the chromosome, and replaces it with a randomly generated new one.
+        """
         random_index = random.randrange(0, int(self._length/3)) * 3
 
         self._integer_list[random_index] = random.randrange(0, self._GATES)
         self._integer_list[random_index + 1] = random.randrange(0, 3)
         self._integer_list[random_index + 2] = random.randrange(0, 3)
 
-    def _replace_with_random_chromosome(self):
+    def _replace_with_random_chromosome(self) -> None:
+        """Randomly generates a new chromosome"""
         gates = int(self._length/3)
         self.clear()
         self.generate_random_chromosome(gates)
 
-    def _change_qubit_connections(self):
+    def _change_qubit_connections(self) -> None:
+        """Finds randomly a gate that connects two qubits and randomly changes it connections."""
         # TODO: implement
         pass
 
-    def _fix_duplicate_qubit_assignment(self):
+    def _fix_duplicate_qubit_assignment(self) -> None:
+        """
+        Checks the chromosome for gates that connects multiple qubits.
+        If the gate has a invalid connection (it is connected to itself through the randomly generated integers),
+        it generates a valid configuration randomly.
+        """
         gates = int(self._length / 3)
 
         for i in range(0, gates):
@@ -248,7 +262,7 @@ class Chromosome(object):
                     self._integer_list[int_index + 1] = random.randrange(1, 3)
 
                 elif self._integer_list[int_index + 1] == 1:
-                    self._integer_list[int_index + 2] = 0  # TODO - hardcoded, make random
+                    self._integer_list[int_index + 2] = 0
 
                 elif self._integer_list[int_index + 1] == 2:
                     self._integer_list[int_index + 2] = random.randrange(0, 2)
@@ -300,14 +314,14 @@ class Generation(object):
     def create_mutated_generation(self, parent: Chromosome) -> None:
         """
         Populates the generation with mutated chromosomes.
+        The mutated chromosomes uses parameter parent as source for mutation.
 
         Parameters
         ----------
-        chromosomes (int):
-            Number of chromosomes in the generation.
-        gates (int):
-            Number of gates in each chromosome.
+        parent (Chromosome):
+            The chromosome all mutations will be generated from.
         """
+
         self.chromosome_list.clear()
         self.chromosome_list.append(parent)
         for i in range(self._chromosomes-1):
@@ -317,14 +331,13 @@ class Generation(object):
 
     def run_generation(self, desired_outcome: List[float]) -> None:
         """
-        The Generation constructor.
+        Runs the simulator for all the chromosomes in the generation and
+        stores the fitness for each chromosome in fitness_list.
 
         Parameters
         ----------
-        chromosomes (int):
-            Number of chromosomes in the generation.
-        gates (int):
-            Number of gates in each chromosome.
+        desired_outcome (List[float]):
+            A list of the eight CA outcomes we wish to test the chromosomes against.
         """
 
         for chromosome in self.chromosome_list:
@@ -374,10 +387,10 @@ class Generation(object):
             print(fitness)
         print("\n")
 
+
 class Circuit(object):
     """
-    Generates a string of 3 * number_of_gates length number representing gate types and position in a quantum
-    circuit
+    A qiskit QuantumCircuit made from a chromosome.
 
     Attributes
     ----------
@@ -409,10 +422,9 @@ class Circuit(object):
                                 [1, 0, 1],
                                 [1, 1, 0],
                                 [1, 1, 1]]
-        # self.desired_chance_of_one = [0.5, 0.3, 0.4, 0, 0.5, 0.2, 0, 0.9]
 
     def __repr__(self):
-        # return str(self.gate_list) + '\n'
+        """Retruns a string visualizing the quantum circuit"""
         return self.draw()
 
     def generate_circuit(self):

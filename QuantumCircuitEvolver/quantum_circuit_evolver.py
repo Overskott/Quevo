@@ -322,6 +322,47 @@ class Generation(object):
             chromosome_fitness = circuit.find_chromosome_fitness(desired_outcome)
             self.fitness_list.append(chromosome_fitness)
 
+    def get_best_fitness(self):
+        """Returns the fitness value for the best chromosome in the generation."""
+        best_fitness = min(self.fitness_list)
+
+        return best_fitness
+
+    def get_best_chromosome(self):
+        """Returns the chromosome with the best fitness in the generation."""
+        best_fitness_index = self.fitness_list.index(self.get_best_fitness())
+        best_chromosome = self.chromosome_list[best_fitness_index]
+
+        return best_chromosome
+
+    def print_chromosomes(self):
+        """Prints all the generation's chromosomes."""
+        print("Chromosomes: ")
+        for chromosome in self.chromosome_list:
+            print(chromosome)
+        print('\n')
+
+    def print_theta_values(self):
+        """Prints all the generation's theta values."""
+        print("Theta values: ")
+        for chromosome in self.chromosome_list:
+            print(chromosome.get_theta_list())
+        print('\n')
+
+    def print_circuits(self):
+        """Prints all the generation's chromosome's circuits."""
+        print("Circuits: ")
+        for chromosome in self.chromosome_list:
+            circuit = Circuit(chromosome)
+            circuit.generate_circuit()
+            circuit.draw()
+        print("\n")
+
+    def print_fitness(self):
+        """Prints the generation's chromosome's fitness"""
+        for fitness in self.fitness_list:
+            print(fitness)
+        print("\n")
 
 class Circuit(object):
     """

@@ -54,7 +54,6 @@ class Chromosome(object):
 
     def __init__(self) -> None:
         """The Chromosome constructor"""
-
         self._integer_list: List[int] = []
         self._theta_list: List[float] = []
         self._length: int = 0
@@ -121,6 +120,8 @@ class Chromosome(object):
     def _update_theta_list(self, old_list: List[int], new_list: List[int]) -> None:
         """
         Updates the list of theta values. Used when a _integer_list is changed.
+        Takes the _integer.list before the change as old_list, and the _integer_list
+        after the change as new_list.
 
         Parameters
         ----------
@@ -147,7 +148,7 @@ class Chromosome(object):
     def _change_in_theta(self, old_list, new_list) -> List[int]:
         """
         Compares the old_list to the new_list and returns a binary string where
-        1 indicates a change in the theta value for that gate, an 0 indicates no
+        1 indicates a change in the theta value for that gate, 0 indicates no
         change in theta.
 
         Parameters
@@ -171,7 +172,7 @@ class Chromosome(object):
         return binary_list
 
     def clear(self) -> None:
-        """Clears chromosome lists"""
+        """Clears chromosome's lists and resets _length"""
         self._integer_list.clear()
         self._theta_list.clear()
         self._length = 0
@@ -198,6 +199,15 @@ class Chromosome(object):
         self._generate_theta_list()
 
     def mutate_chromosome(self):
+        """
+        Generates a random list of integers representing a quantum circuit with
+        the parameter "gates" number of gates
+
+        Parameters
+        ----------
+        gates : int
+            The number of gates in the generated circuit representation.
+        """
         # gates = int(self._length / 3)
         old_integer_list = copy.copy(self._integer_list)
 
@@ -466,9 +476,9 @@ class Circuit(object):
             self.generate_circuit()
             # self.draw() # uncomment to see circuit drawings with initial states
             difference = self.calculate_difference(desired_chance_of_one[index])
-            fitness = fitness + (difference * 100)**2
+            fitness = fitness + difference
             index = index + 1
-        return math.sqrt(fitness)/ 100
+        return fitness
 
     def print_ca_outcomes(self, desired_chance_of_one: List[float]):
         print("Initial State | Desired outcome | Actual outcome  | Difference")

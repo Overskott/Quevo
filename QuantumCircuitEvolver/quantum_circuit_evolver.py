@@ -35,7 +35,7 @@ class Chromosome(object):
     |  3  | Swap    |   Y     |
     |  4  | RZZ     |   Y     |
     |  5  | RXX     |   Y     |
-    |  6  | Z       |   N     |
+    |  6  | Toffoli |   Y     |
     |  7  | Y       |   N     |
 
     Some gates (RZZ, RXX) also need an angle value (theta) stored in a separate list.
@@ -84,7 +84,10 @@ class Chromosome(object):
         for integer in integer_list:
             self._integer_list.append(integer)
         self._update_length()
-        self._update_theta_list(old_integer_list, self._integer_list)
+        if not old_integer_list:
+            self._generate_theta_list()
+        else:
+            self._update_theta_list(old_integer_list, self._integer_list)
 
     def get_integer_list(self) -> List[int]:
         """Returns the list of integers representing the circuit"""
@@ -198,7 +201,7 @@ class Chromosome(object):
         # gates = int(self._length / 3)
         old_integer_list = copy.copy(self._integer_list)
 
-        if random.randrange(0, 100) > 20:
+        if random.randrange(0, 100) > 40:
             self._replace_gate_with_random_gate()
         else:
             self._replace_with_random_chromosome()
@@ -387,27 +390,31 @@ class Circuit(object):
                 theta = self.chromosome.get_theta_list()[i]
                 self.circuit.rxx(theta=theta, qubit1=b, qubit2=c)
             elif a == 6:
-                self.circuit.z(b)
+                target = b
+                if target == 1:
+                    self.circuit.toffoli(0, 2, target)
+                else:
+                    self.circuit.toffoli(abs(target-1), abs(target-2), target)
             elif a == 7:
                 self.circuit.y(b)
 
         self.circuit.measure(0, 0)
 
-    def calculate_error(self, desired_chance_of_one):
+    def calculate_difference(self, desired_chance_of_one):
+        chance_of_one = self.calculate_probability_of_one()
+
+        difference = abs(desired_chance_of_one - chance_of_one)
+
+        return difference
+
+    def calculate_probability_of_one(self):
         counts = self.run_simulator()
         if '0' in counts:
             chance_of_one = (self.shots - counts['0']) / self.shots
-            error = abs(desired_chance_of_one - chance_of_one)
         else:
-            error = 1
-        return error
+            chance_of_one = 1
 
-    def run_simulator(self):
-        aer_sim = Aer.get_backend('aer_simulator')
-        # aer_sim = Aer.get_backend('statevector_simulator')
-        quantum_circuit = assemble(self.circuit, shots=self.shots)
-        job = aer_sim.run(quantum_circuit)
-        return job.result().get_counts()
+        return chance_of_one
 
     def find_chromosome_fitness(self, desired_chance_of_one: List[float]) -> float:
         fitness = 0
@@ -417,23 +424,37 @@ class Circuit(object):
             self.initialize_initial_states(triplet)
             self.generate_circuit()
             # self.draw() # uncomment to see circuit drawings with initial states
-            error = self.calculate_error(desired_chance_of_one[index])
-            fitness = fitness + error
+            difference = self.calculate_difference(desired_chance_of_one[index])
+            fitness = fitness + (difference * 100)**2
             index = index + 1
-        return math.sqrt(fitness)
+        return math.sqrt(fitness)/ 100
 
     def print_ca_outcomes(self, desired_chance_of_one: List[float]):
-        print("Initial State | Desired outcome | Actual outcome")
+        print("Initial State | Desired outcome | Actual outcome  | Difference")
+        index = 0
+        self.clear_circuit()
+        for triplet in self.STARTING_STATES:
+
+            self.initialize_initial_states(triplet)
+            self.generate_circuit()
+            chance_of_one = self.calculate_probability_of_one()
+
+            difference = abs(desired_chance_of_one[index]-chance_of_one)
+
+            chance_format = "{:.2f}".format(chance_of_one)
+            diff_format = "{:.2f}".format(difference)
+            print(str(self.STARTING_STATES[index]) + "              " + str(float(desired_chance_of_one[index])) +
+                  "               " + chance_format + "           " + diff_format)
+            self.clear_circuit()
+            index = index + 1
+
+    def print_counts(self, desired_chance_of_one: List[float]):
         index = 0
         for triplet in self.STARTING_STATES:
             self.clear_circuit()
             self.initialize_initial_states(triplet)
             self.generate_circuit()
-            error = self.calculate_error(desired_chance_of_one[index])
-            formated = "{:.2f}".format(error)
-            print(str(self.STARTING_STATES[index]) + "          " + str(desired_chance_of_one[index]) + "              "
-                  + formated)
-            self.clear_circuit()
+            print(self.run_simulator())
             index = index + 1
 
     def initialize_initial_states(self, triplet: List[int]):
@@ -443,6 +464,13 @@ class Circuit(object):
             self.circuit.x(1)
         if triplet[2] == 1:
             self.circuit.x(2)
+
+    def run_simulator(self):
+        aer_sim = Aer.get_backend('aer_simulator')
+        # aer_sim = Aer.get_backend('statevector_simulator')
+        quantum_circuit = assemble(self.circuit, shots=self.shots)
+        job = aer_sim.run(quantum_circuit)
+        return job.result().get_counts()
 
     def draw(self):
         print(self.circuit.draw(output='text'))

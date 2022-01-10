@@ -484,6 +484,8 @@ class Circuit(object):
                     self.circuit.toffoli(abs(target - 1), abs(target - 2), target)
             elif gate == 'y':
                 self.circuit.y(b)
+            elif gate == 'z':
+                self.circuit.z(b)
             else:
                 print(gate + " is not a valid gate!")
 
@@ -492,10 +494,11 @@ class Circuit(object):
     def calculate_probability_of_one(self) -> float:
         """Returns the measured chance of one after simulation"""
         counts = self.run_simulator()
-        if '0' in counts:
-            chance_of_one = (self.shots - counts['0']) / self.shots
+
+        if '1' in counts:
+            chance_of_one = counts['1'] / self.shots
         else:
-            chance_of_one = 1
+            chance_of_one = 0
 
         return chance_of_one
 
@@ -514,8 +517,9 @@ class Circuit(object):
         difference: (float)
             The difference between parameter desired_chance_of_one and result from simulation.
         """
+
         chance_of_one = self.calculate_probability_of_one()
-        difference = abs(desired_chance_of_one - chance_of_one)
+        difference = math.fabs(desired_chance_of_one - chance_of_one)
 
         return difference
 
@@ -558,15 +562,15 @@ class Circuit(object):
 
             chance_of_one = self.calculate_probability_of_one()
             difference = self.calculate_difference(desired_chance_of_one[index])
-            chance_format = "{:.2f}".format(chance_of_one)
-            diff_format = "{:.2f}".format(difference)
+            chance_format = "{:.3f}".format(chance_of_one)
+            diff_format = "{:.3f}".format(difference)
 
             print(str(self.STARTING_STATES[index]) + "              "
                   + str(float(desired_chance_of_one[index])) + "               "
                   + chance_format + "           "
                   + diff_format)
-            self.clear_circuit()
             index = index + 1
+            self.clear_circuit()
 
     def print_counts(self):
         """Prints the counts result from simulation"""

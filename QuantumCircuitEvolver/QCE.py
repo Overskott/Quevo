@@ -14,7 +14,7 @@ from quantum_circuit_evolver import *
 if __name__ == '__main__':
     gates = 10
     chromosomes = 10
-    generations = 30
+    generations = 20
 
     desired_chance_of_one = [1, 0, 1, 0, 0, 1, 0, 1]  # Very good results
     # desired_chance_of_one = [0.5, 0.7, 0.4, 0.0, 0.2, 0.7, 0.1, 0.9]  # Good results
@@ -51,7 +51,6 @@ if __name__ == '__main__':
         next_gen = Generation(chromosomes, gates)
         next_gen.create_mutated_generation(current_chromosome)
 
-        next_gen.print_chromosomes()
         # Check every Chromosome's fitness
         next_gen.run_generation(desired_chance_of_one)
 

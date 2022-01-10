@@ -20,7 +20,7 @@ class Chromosome(object):
     Gate number:               1  |  2  |  3
     Gate int representation:  201 | 311 | 402
 
-    The first int is what kind of gate it is (i.e. X-gate, CNOT, Hadamard).
+    The first int is what kind of gate it is (i.e. X-gate, C-NOT, Hadamard).
     The second int is what qubit is this assigned to (0 -> qubit 0, 1 -> qubit 1, ...)
     The third int is what qubit is controlling the gate. in cases where gates do not have an
     external controller, this int is ignored.
@@ -30,6 +30,7 @@ class Chromosome(object):
 
     | Supported gate types| Notation |
     |---------------------|----------|
+    |       Hadamard      |    'h'   |
     |       Pauli X       |    'x'   |
     |       Pauli Z       |    'z'   |
     |       Pauli Y       |    'y'   |

@@ -60,6 +60,7 @@ class Chromosome(object):
 
         self._gate_name_list = ["h", "cx", "x", "swap", "rzz", "rxx", "toffoli", "y"]
         self._gate_dict: dict = {}
+
         for j in range(0, len(self._gate_name_list)):
             self._gate_dict[str(j)] = self._gate_name_list[j]
 
@@ -120,7 +121,8 @@ class Chromosome(object):
 
         for i in range(0, gates):
             int_index = i * 3
-            if self._integer_list[int_index] in self._gate_dict:
+            gate = self._gate_dict[str(self._integer_list[int_index])]
+            if gate in ['rzz', 'rxx']:
                 theta = random.uniform(0, 2 * math.pi)
                 self._theta_list.append(theta)
             else:
@@ -144,12 +146,11 @@ class Chromosome(object):
 
         for i in range(0, gates):
             int_index = i * 3
-
-            if change_list[int_index] == 1 and \
-                    self._integer_list[int_index] in [self._gate_dict['rzz'], self._gate_dict['rxx']]:
+            gate = self._gate_dict[str(change_list[int_index])]
+            if self._integer_list[int_index] == 1 and gate in ['rzz', 'rxx']:
                 theta = random.uniform(0, 2 * math.pi)
                 self._theta_list[i] = theta
-            elif self._integer_list[int_index] in [self._gate_dict['rzz'], self._gate_dict['rxx']]:
+            elif gate in ['rzz', 'rxx']:
                 continue
             else:
                 self._theta_list[i] = 0
@@ -201,7 +202,7 @@ class Chromosome(object):
         self.clear()
         for i in range(gates * 3):
             if i % 3 == 0:
-                self._integer_list.append(random.randrange(0, self._GATES))
+                self._integer_list.append(random.randrange(0, len(self._gate_name_list)))
             else:
                 self._integer_list.append(random.randrange(0, 3))
 
@@ -238,7 +239,7 @@ class Chromosome(object):
         """
         random_index = random.randrange(0, int(self._length/3)) * 3
 
-        self._integer_list[random_index] = random.randrange(0, self._GATES)
+        self._integer_list[random_index] = random.randrange(0, len(self._gate_name_list))
         self._integer_list[random_index + 1] = random.randrange(0, 3)
         self._integer_list[random_index + 2] = random.randrange(0, 3)
 
@@ -264,7 +265,7 @@ class Chromosome(object):
         for i in range(0, gates):
             int_index = i * 3
 
-            if ((self._integer_list[int_index] in [self._gate_dict['swap'], self._gate_dict['cx'], self._gate_dict['rzz'], self._gate_dict['rxx']]) and
+            if ((self._gate_dict[str(self._integer_list[int_index])] in ['cx', 'swap', 'rzz', 'rxx']) and
                     self._integer_list[int_index + 1] == self._integer_list[int_index + 2]):
 
                 if self._integer_list[int_index + 1] == 0:
@@ -439,44 +440,10 @@ class Circuit(object):
         """Returns a string visualizing the quantum circuit"""
         return self.draw()
 
-    # def generate_circuit(self):
-    #     # Parsing integer string and converting it to gates
-    #     gates = int(self.chromosome.get_length() / 3)
-    #
-    #     for i in range(0, gates):
-    #         gate_index = i * 3
-    #
-    #         a = self.chromosome.get_integer_list()[gate_index]
-    #         b = self.chromosome.get_integer_list()[gate_index + 1]
-    #         c = self.chromosome.get_integer_list()[gate_index + 2]
-    #
-    #         if a == 0:
-    #             self.circuit.h(b)
-    #         elif a == 1:
-    #             self.circuit.cx(b, c)
-    #         elif a == 2:
-    #             self.circuit.x(b)
-    #         elif a == 3:
-    #             self.circuit.swap(b, c)
-    #         elif a == 4:
-    #             theta = self.chromosome.get_theta_list()[i]
-    #             self.circuit.rzz(theta=theta, qubit1=b, qubit2=c)
-    #         elif a == 5:
-    #             theta = self.chromosome.get_theta_list()[i]
-    #             self.circuit.rxx(theta=theta, qubit1=b, qubit2=c)
-    #         elif a == 6:
-    #             target = b
-    #             if target == 1:
-    #                 self.circuit.toffoli(0, 2, target)
-    #             else:
-    #                 self.circuit.toffoli(abs(target-1), abs(target-2), target)
-    #         elif a == 7:
-    #             self.circuit.y(b)
-    #
-    #     self.circuit.measure(0, 0)
-
     def generate_circuit(self):
-        # Parsing integer string and converting it to gates
+        """
+
+        """
         gates = int(self.chromosome.get_length() / 3)
 
         gate_dict = self.chromosome.get_gate_dict()
@@ -488,7 +455,7 @@ class Circuit(object):
             b = self.chromosome.get_integer_list()[gate_index + 1]
             c = self.chromosome.get_integer_list()[gate_index + 2]
 
-            gate = gate_dict.
+            gate = gate_dict[str(a)]
 
             if gate == 'h':
                 self.circuit.h(b)

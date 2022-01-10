@@ -557,7 +557,7 @@ class Circuit(object):
             self.generate_circuit()
 
             chance_of_one = self.calculate_probability_of_one()
-            difference = abs(desired_chance_of_one[index]-chance_of_one)
+            difference = self.calculate_difference(desired_chance_of_one[index])
             chance_format = "{:.2f}".format(chance_of_one)
             diff_format = "{:.2f}".format(difference)
 

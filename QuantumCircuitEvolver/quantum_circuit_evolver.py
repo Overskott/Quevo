@@ -25,18 +25,18 @@ class Chromosome(object):
     The third int is what qubit is controlling the gate. in cases where gates do not have an
     external controller, this int is ignored.
 
-    The table describing int, corresponding gate and if it uses control qubit, yes or no (Y/N):
+    The table under shows what gates are acceptable and how to notate the in the _gae
 
-    | Supported gate types|
-    |---------------------|
-    |       Pauli X       |
-    |       Pauli Z       |
-    |       Pauli Y       |
-    |        C-NOT        |
-    |      Swap gate      |
-    |       Toffoli       |
-    |         RXX         |
-    |         RZZ         |
+    | Supported gate types| Notation |
+    |---------------------|----------|
+    |       Pauli X       |    'x'   |
+    |       Pauli Z       |    'z'   |
+    |       Pauli Y       |    'y'   |
+    |        C-NOT        |   'cx'   |
+    |      Swap gate      |  'swap'  |
+    |       Toffoli       | 'toffoli'|
+    |         RXX         |   'rxx'  |
+    |         RZZ         |   'rzz'  |
 
     Some gates (RZZ, RXX) also need an angle value (theta) stored in a separate list.
 
@@ -48,7 +48,7 @@ class Chromosome(object):
         A list of angle values for the gates. This list is the same length as number of gates (len(_integer_list) / 3).
     _length: int
         The number of integers in the integer representation
-    _gate_name_list: List[str]
+    _gate_list: List[str]
         Experimental. Use to adjust how many types of quantum gates to include in the circuit during generation.
     _gate_dict: dict
     """
@@ -58,7 +58,7 @@ class Chromosome(object):
         self._integer_list: List[int] = []
         self._theta_list: List[float] = []
         self._length: int = 0
-        self._gate_name_list = ["h", "cx", "x", "swap", "rzz", "rxx", "toffoli", "y"]
+        self._gate_list = ["h", "cx", "x", "swap", "rzz", "rxx", "toffoli", "y"]
         self._gate_dict: dict = self._create_gate_dict()
 
     def __repr__(self) -> str:
@@ -74,10 +74,10 @@ class Chromosome(object):
         yield from self._integer_list
 
     def _create_gate_dict(self) -> dict:
-        """Creates and return a dict of the _gate_name_list"""
+        """Creates and return a dict of the _gate_list"""
         gate_dict: dict = {}
-        for j in range(0, len(self._gate_name_list)):
-            gate_dict[str(j)] = self._gate_name_list[j]
+        for j in range(0, len(self._gate_list)):
+            gate_dict[str(j)] = self._gate_list[j]
         return gate_dict
 
     def set_integer_list(self, integer_list: List[int]):
@@ -205,7 +205,7 @@ class Chromosome(object):
         self.clear()
         for i in range(gates * 3):
             if i % 3 == 0:
-                self._integer_list.append(random.randrange(0, len(self._gate_name_list)))
+                self._integer_list.append(random.randrange(0, len(self._gate_list)))
             else:
                 self._integer_list.append(random.randrange(0, 3))
 
@@ -242,7 +242,7 @@ class Chromosome(object):
         """
         random_index = random.randrange(0, int(self._length/3)) * 3
 
-        self._integer_list[random_index] = random.randrange(0, len(self._gate_name_list))
+        self._integer_list[random_index] = random.randrange(0, len(self._gate_list))
         self._integer_list[random_index + 1] = random.randrange(0, 3)
         self._integer_list[random_index + 2] = random.randrange(0, 3)
 

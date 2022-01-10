@@ -25,6 +25,7 @@ class Chromosome(object):
     The third int is what qubit is controlling the gate. in cases where gates do not have an
     external controller, this int is ignored.
 
+    The gates are given in the _gate_list attribute, and is hardcoded for the moment.
     The table under shows what gates are acceptable and how to notate the in the _gae
 
     | Supported gate types| Notation |
@@ -260,7 +261,7 @@ class Chromosome(object):
     def _fix_duplicate_qubit_assignment(self) -> None:
         """
         Checks the chromosome for gates that connects multiple qubits.
-        If the gate has a invalid connection (it is connected to itself through the randomly generated integers),
+        If the gate has an invalid connection (it is connected to itself through the randomly generated integers),
         it generates a valid configuration randomly.
         """
         gates = int(self._length / 3)

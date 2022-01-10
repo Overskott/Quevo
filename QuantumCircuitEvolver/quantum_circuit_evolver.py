@@ -555,12 +555,12 @@ class Circuit(object):
 
             self.initialize_initial_states(triplet)
             self.generate_circuit()
+
             chance_of_one = self.calculate_probability_of_one()
-
             difference = abs(desired_chance_of_one[index]-chance_of_one)
-
             chance_format = "{:.2f}".format(chance_of_one)
             diff_format = "{:.2f}".format(difference)
+
             print(str(self.STARTING_STATES[index]) + "              "
                   + str(float(desired_chance_of_one[index])) + "               "
                   + chance_format + "           "

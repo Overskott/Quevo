@@ -27,16 +27,16 @@ class Chromosome(object):
 
     The table describing int, corresponding gate and if it uses control qubit, yes or no (Y/N):
 
-    | Int |  Gate   | Control |
-    | --- |:-------:| -------:|
-    |  0  | Hadamard|   N     |
-    |  1  | C-NOT   |   Y     |
-    |  2  |   X 	|   N     |
-    |  3  | Swap    |   Y     |
-    |  4  | RZZ     |   Y     |
-    |  5  | RXX     |   Y     |
-    |  6  | Toffoli |   Y     |
-    |  7  | Y       |   N     |
+    | Supported gate types|
+    |---------------------|
+    |       Pauli X       |
+    |       Pauli Z       |
+    |       Pauli Y       |
+    |        C-NOT        |
+    |      Swap gate      |
+    |       Toffoli       |
+    |         RXX         |
+    |         RZZ         |
 
     Some gates (RZZ, RXX) also need an angle value (theta) stored in a separate list.
 
@@ -48,8 +48,9 @@ class Chromosome(object):
         A list of angle values for the gates. This list is the same length as number of gates (len(_integer_list) / 3).
     _length: int
         The number of integers in the integer representation
-    _GATES: int
+    _gate_name_list: List[str]
         Experimental. Use to adjust how many types of quantum gates to include in the circuit during generation.
+    _gate_dict: dict
     """
 
     def __init__(self) -> None:
@@ -57,14 +58,8 @@ class Chromosome(object):
         self._integer_list: List[int] = []
         self._theta_list: List[float] = []
         self._length: int = 0
-
         self._gate_name_list = ["h", "cx", "x", "swap", "rzz", "rxx", "toffoli", "y"]
-        self._gate_dict: dict = {}
-
-        for j in range(0, len(self._gate_name_list)):
-            self._gate_dict[str(j)] = self._gate_name_list[j]
-
-        self._GATES = len(self._gate_name_list)
+        self._gate_dict: dict = self._create_gate_dict()
 
     def __repr__(self) -> str:
         """Returns desired for printing == print(_integer_list)"""
@@ -77,6 +72,13 @@ class Chromosome(object):
     def __iter__(self) -> List[int]:
         """Returns the iterable _integer_list"""
         yield from self._integer_list
+
+    def _create_gate_dict(self) -> dict:
+        """Creates and return a dict of the _gate_name_list"""
+        gate_dict: dict = {}
+        for j in range(0, len(self._gate_name_list)):
+            gate_dict[str(j)] = self._gate_name_list[j]
+        return gate_dict
 
     def set_integer_list(self, integer_list: List[int]):
         """
@@ -96,6 +98,7 @@ class Chromosome(object):
             self._update_theta_list(old_integer_list, self._integer_list)
 
     def get_gate_dict(self):
+        """Returns the chromosome's _gate_dict attribute"""
         return self._gate_dict
 
     def get_integer_list(self) -> List[int]:
@@ -244,7 +247,7 @@ class Chromosome(object):
         self._integer_list[random_index + 2] = random.randrange(0, 3)
 
     def _replace_with_random_chromosome(self) -> None:
-        """Randomly generates a new chromosome"""
+        """Clears the chromosome and randomly generates a new _integer_list"""
         gates = int(self._length/3)
         self.clear()
         self.generate_random_chromosome(gates)
@@ -440,9 +443,9 @@ class Circuit(object):
         """Returns a string visualizing the quantum circuit"""
         return self.draw()
 
-    def generate_circuit(self):
+    def generate_circuit(self) -> None:
         """
-
+        Parses the chromosome, and generates a Qiskit QuantumCircuit from it.
         """
         gates = int(self.chromosome.get_length() / 3)
 
@@ -484,14 +487,8 @@ class Circuit(object):
 
         self.circuit.measure(0, 0)
 
-    def calculate_difference(self, desired_chance_of_one):
-        chance_of_one = self.calculate_probability_of_one()
-
-        difference = abs(desired_chance_of_one - chance_of_one)
-
-        return difference
-
-    def calculate_probability_of_one(self):
+    def calculate_probability_of_one(self) -> float:
+        """Returns the measured chance of one after simulation"""
         counts = self.run_simulator()
         if '0' in counts:
             chance_of_one = (self.shots - counts['0']) / self.shots
@@ -500,20 +497,55 @@ class Circuit(object):
 
         return chance_of_one
 
+    def calculate_difference(self, desired_chance_of_one: float) -> float:
+        """
+        Calculates and returns the difference in probability between given parameter
+        and the measured simulated probability.
+
+        Parameters
+        ----------
+        desired_chance_of_one: (float)
+            The probability to compare versus result.
+
+        Returns
+        -------
+        difference: (float)
+            The difference between parameter desired_chance_of_one and result from simulation.
+        """
+        chance_of_one = self.calculate_probability_of_one()
+        difference = abs(desired_chance_of_one - chance_of_one)
+
+        return difference
+
     def find_chromosome_fitness(self, desired_chance_of_one: List[float]) -> float:
+        """
+        Calculates and return the fitness for the chromosome
+
+        Parameters
+        ----------
+        desired_chance_of_one: List[float]
+            A list of desired probabilities for all the CA initial states.
+
+        Returns
+        -------
+        fitness: (float)
+            The chromosome fitness.
+        """
+
         fitness = 0
         index = 0
         for triplet in self.STARTING_STATES:
             self.clear_circuit()
             self.initialize_initial_states(triplet)
             self.generate_circuit()
-            # self.draw() # uncomment to see circuit drawings with initial states
+            # self.draw()  # uncomment to see circuit drawings with initial states
             difference = self.calculate_difference(desired_chance_of_one[index])
             fitness = fitness + difference
             index = index + 1
         return fitness
 
     def print_ca_outcomes(self, desired_chance_of_one: List[float]):
+        """Prints a table of the results from a run of the chromosome"""
         print("Initial State | Desired outcome | Actual outcome  | Difference")
         index = 0
         self.clear_circuit()
@@ -527,12 +559,15 @@ class Circuit(object):
 
             chance_format = "{:.2f}".format(chance_of_one)
             diff_format = "{:.2f}".format(difference)
-            print(str(self.STARTING_STATES[index]) + "              " + str(float(desired_chance_of_one[index])) +
-                  "               " + chance_format + "           " + diff_format)
+            print(str(self.STARTING_STATES[index]) + "              "
+                  + str(float(desired_chance_of_one[index])) + "               "
+                  + chance_format + "           "
+                  + diff_format)
             self.clear_circuit()
             index = index + 1
 
-    def print_counts(self, desired_chance_of_one: List[float]):
+    def print_counts(self):
+        """Prints the counts result from simulation"""
         index = 0
         for triplet in self.STARTING_STATES:
             self.clear_circuit()
@@ -541,7 +576,17 @@ class Circuit(object):
             print(self.run_simulator())
             index = index + 1
 
-    def initialize_initial_states(self, triplet: List[int]):
+    def initialize_initial_states(self, triplet: List[int]) -> None:
+        """
+        Initializes a Cellular Automata (CA) state in the circuit.
+
+        Parameters
+        ----------
+        triplet: List[int]
+            A list of three integer in {0,1} representing the one of the
+            eight starting possibilities in 1D Von Neumann CA.
+        """
+
         if triplet[0] == 1:
             self.circuit.x(0)
         if triplet[1] == 1:
@@ -549,15 +594,26 @@ class Circuit(object):
         if triplet[2] == 1:
             self.circuit.x(2)
 
-    def run_simulator(self):
+    def run_simulator(self) -> dict:
+        """
+        Runs the circuit on the Qiskit AER simulator and returns the results as a dictionary.
+
+        Returns
+        -------
+        counts: dict
+            The results from the AER simulation.
+        """
         aer_sim = Aer.get_backend('aer_simulator')
         # aer_sim = Aer.get_backend('statevector_simulator')
         quantum_circuit = assemble(self.circuit, shots=self.shots)
         job = aer_sim.run(quantum_circuit)
-        return job.result().get_counts()
+        counts = job.result().get_counts()
+        return counts
 
-    def draw(self):
+    def draw(self) -> None:
+        """Prints a visual representation of the circuit"""
         print(self.circuit.draw(output='text'))
 
-    def clear_circuit(self):
+    def clear_circuit(self) -> None:
+        """Clears the Qiskit QuantumCircuit for all gates"""
         self.circuit.data.clear()

@@ -50,6 +50,8 @@ if __name__ == '__main__':
         next_gen.run_generation(desired_chance_of_one)
 
         current_fitness = next_gen.get_best_fitness()
+        current_chromosome = next_gen.get_best_chromosome()
+
         # Print generation best result
         print("Fitness for best mutated chromosome in mutation " + str(gen + 1) + ": "
               + str(current_fitness) + "\n"

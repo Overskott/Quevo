@@ -364,14 +364,12 @@ class Generation(object):
     def get_best_fitness(self):
         """Returns the fitness value for the best chromosome in the generation."""
         best_fitness = min(self.fitness_list)
-
         return best_fitness
 
     def get_best_chromosome(self):
         """Returns the chromosome with the best fitness in the generation."""
         best_fitness_index = self.fitness_list.index(self.get_best_fitness())
         best_chromosome = self.chromosome_list[best_fitness_index]
-
         return best_chromosome
 
     def print_chromosomes(self):
@@ -441,6 +439,7 @@ class Circuit(object):
                                 [1, 0, 1],
                                 [1, 1, 0],
                                 [1, 1, 1]]
+        self.results = {}
 
     def __repr__(self):
         """Returns a string visualizing the quantum circuit"""
@@ -495,7 +494,6 @@ class Circuit(object):
     def calculate_probability_of_one(self) -> float:
         """Returns the measured chance of one after simulation"""
         counts = self.run_simulator()
-
         if '1' in counts:
             chance_of_one = counts['1'] / self.shots
         else:
@@ -503,28 +501,10 @@ class Circuit(object):
 
         return chance_of_one
 
-    def calculate_difference(self, probability_one: float, probability_two: float) -> float:
-        """
-        Calculates and returns the absolute difference in probability between given parameters.
-
-        Parameters
-        ----------
-        probability_one: (float)
-            The first number to compare.
-        probability_two: (float)
-            The second number to compare.
-        Returns
-        -------
-        difference: (float)
-            The absolute difference between parameter probability_one and probability_two.
-        """
-        difference = math.fabs(probability_one - probability_two)
-
-        return difference
-
     def find_chromosome_fitness(self, desired_chance_of_one: List[float]) -> float:
         """
-        Calculates and return the fitness for the chromosome
+        Calculates and return the fitness for the chromosome i.e.
+        the sum of differences in all initial states.
 
         Parameters
         ----------
@@ -539,27 +519,48 @@ class Circuit(object):
 
         fitness = 0
         for i in range(0, len(self.STARTING_STATES)):
-            self.clear_circuit()
-            self.initialize_initial_states(self.STARTING_STATES[i])
-            self.generate_circuit()
-            # self.draw()  # uncomment to see circuit drawings with initial states
-            chance_of_one = self.calculate_probability_of_one()
-            difference = abs(chance_of_one - desired_chance_of_one[i])
+
+            state = self.STARTING_STATES[i]
+            probability = desired_chance_of_one[i]
+            difference = self.find_init_state_fitness(state, probability)
             fitness = fitness + difference
+
         return fitness
+
+    def find_init_state_fitness(self, state: List[int], desired_chance_of_one: float) -> float:
+        """
+        Finds the difference between the desired probability and measured probability for given state.
+
+        Parameters
+        ---------
+        state: (List[int])
+            A list with a binary triplet describing the initial state.
+        desired_chance_of_one: (float)
+            The probability to measure against.
+
+        Returns
+        -------
+        difference: (float)
+            The difference between the desired probability and measured probability for given state.
+        """
+        self.clear_circuit()
+        self.initialize_initial_states(state)
+        self.generate_circuit()
+        chance_of_one = self.calculate_probability_of_one()
+        difference = abs(desired_chance_of_one - chance_of_one)
+        return difference
 
     def print_ca_outcomes(self, desired_chance_of_one: List[float]):
         """Prints a table of the results from a run of the chromosome"""
         print("Initial State | Desired outcome | Actual outcome  | Difference")
-        self.clear_circuit()
+
         for i in range(0, len(self.STARTING_STATES)):
+            state = self.STARTING_STATES[i]
+            probability = desired_chance_of_one[i]
+            difference = self.find_init_state_fitness(state, probability)
 
-            self.initialize_initial_states(self.STARTING_STATES[i])
-            self.generate_circuit()
+            chance_of_one = abs(difference - probability)
 
-            chance_of_one = self.calculate_probability_of_one()
-            # difference = self.calculate_difference(desired_chance_of_one[index])
-            difference = abs(chance_of_one-desired_chance_of_one[i])
             chance_format = "{:.3f}".format(chance_of_one)
             diff_format = "{:.3f}".format(difference)
 

@@ -28,13 +28,7 @@ if __name__ == '__main__':
     init_gen = Generation(10, gates)
     init_gen.create_initial_generation()
 
-    init_gen.print_chromosomes()
-    init_gen.print_theta_values()
-    init_gen.print_circuits()
-
     init_gen.run_generation(desired_chance_of_one)
-
-    init_gen.print_fitness()
 
     print("Fitness for best chromosome: " + str(init_gen.get_best_fitness()) + "\n"
           + "Best chromosome: \n" + str(init_gen.get_best_chromosome()))
@@ -56,7 +50,6 @@ if __name__ == '__main__':
         next_gen.run_generation(desired_chance_of_one)
 
         current_fitness = next_gen.get_best_fitness()
-
         # Print generation best result
         print("Fitness for best mutated chromosome in mutation " + str(gen + 1) + ": "
               + str(current_fitness) + "\n"

@@ -60,7 +60,8 @@ class Chromosome(object):
         self._integer_list: List[int] = []
         self._theta_list: List[float] = []
         self._length: int = 0
-        self._gate_list = ["h", "cx", "x", "swap", "rzz", "rxx", "toffoli", "y"]
+        # possible gates: h, cx, x, swap, rzz, rxx, toffoli, y
+        self._gate_list = ['cx', 'h', 'swap', 'rxx', 'rzz', 'toffoli', 'x', 'z', 'y']
         self._gate_dict: dict = self._create_gate_dict()
 
     def __repr__(self) -> str:
@@ -328,8 +329,8 @@ class Generation(object):
 
     def create_mutated_generation(self, parent: Chromosome) -> None:
         """
-        Populates the generation with mutated chromosomes.
-        The mutated chromosomes uses parameter parent as source for mutation.
+        Populates the generation with mutated chromosomes. The parent in included as the first member of the next
+        generation. The mutated chromosomes uses parameter parent as source for mutation.
 
         Parameters
         ----------
@@ -502,24 +503,22 @@ class Circuit(object):
 
         return chance_of_one
 
-    def calculate_difference(self, desired_chance_of_one: float) -> float:
+    def calculate_difference(self, probability_one: float, probability_two: float) -> float:
         """
-        Calculates and returns the difference in probability between given parameter
-        and the measured simulated probability.
+        Calculates and returns the absolute difference in probability between given parameters.
 
         Parameters
         ----------
-        desired_chance_of_one: (float)
-            The probability to compare versus result.
-
+        probability_one: (float)
+            The first number to compare.
+        probability_two: (float)
+            The second number to compare.
         Returns
         -------
         difference: (float)
-            The difference between parameter desired_chance_of_one and result from simulation.
+            The absolute difference between parameter probability_one and probability_two.
         """
-
-        chance_of_one = self.calculate_probability_of_one()
-        difference = math.fabs(desired_chance_of_one - chance_of_one)
+        difference = math.fabs(probability_one - probability_two)
 
         return difference
 
@@ -539,37 +538,35 @@ class Circuit(object):
         """
 
         fitness = 0
-        index = 0
-        for triplet in self.STARTING_STATES:
+        for i in range(0, len(self.STARTING_STATES)):
             self.clear_circuit()
-            self.initialize_initial_states(triplet)
+            self.initialize_initial_states(self.STARTING_STATES[i])
             self.generate_circuit()
             # self.draw()  # uncomment to see circuit drawings with initial states
-            difference = self.calculate_difference(desired_chance_of_one[index])
+            chance_of_one = self.calculate_probability_of_one()
+            difference = abs(chance_of_one - desired_chance_of_one[i])
             fitness = fitness + difference
-            index = index + 1
         return fitness
 
     def print_ca_outcomes(self, desired_chance_of_one: List[float]):
         """Prints a table of the results from a run of the chromosome"""
         print("Initial State | Desired outcome | Actual outcome  | Difference")
-        index = 0
         self.clear_circuit()
-        for triplet in self.STARTING_STATES:
+        for i in range(0, len(self.STARTING_STATES)):
 
-            self.initialize_initial_states(triplet)
+            self.initialize_initial_states(self.STARTING_STATES[i])
             self.generate_circuit()
 
             chance_of_one = self.calculate_probability_of_one()
-            difference = self.calculate_difference(desired_chance_of_one[index])
+            # difference = self.calculate_difference(desired_chance_of_one[index])
+            difference = abs(chance_of_one-desired_chance_of_one[i])
             chance_format = "{:.3f}".format(chance_of_one)
             diff_format = "{:.3f}".format(difference)
 
-            print(str(self.STARTING_STATES[index]) + "              "
-                  + str(float(desired_chance_of_one[index])) + "               "
+            print(str(self.STARTING_STATES[i]) + "              "
+                  + str(float(desired_chance_of_one[i])) + "               "
                   + chance_format + "           "
                   + diff_format)
-            index = index + 1
             self.clear_circuit()
 
     def print_counts(self):
@@ -610,7 +607,8 @@ class Circuit(object):
             The results from the AER simulation.
         """
         aer_sim = Aer.get_backend('aer_simulator')
-        # aer_sim = Aer.get_backend('statevector_simulator')
+        # aer_sim = Aer.get_backend('aer_simulator_density_matrix')
+        # aer_sim = Aer.get_backend('aer_simulator_stabilizer')
         quantum_circuit = assemble(self.circuit, shots=self.shots)
         job = aer_sim.run(quantum_circuit)
         counts = job.result().get_counts()

@@ -521,13 +521,13 @@ class Circuit(object):
 
             state = self.STARTING_STATES[i]
             probability = desired_chance_of_one[i]
-            found_probability = self.find_init_state_probability(state, probability)
+            found_probability = self.find_init_state_probability(state)
             difference = abs(probability - found_probability)
             fitness = fitness + difference
 
         return fitness
 
-    def find_init_state_probability(self, state: List[int], desired_chance_of_one: float) -> float:
+    def find_init_state_probability(self, state: List[int]) -> float:
         """
         Finds the difference between the desired probability and measured probability for given state.
 
@@ -535,8 +535,6 @@ class Circuit(object):
         ---------
         state: (List[int])
             A list with a binary triplet describing the initial state.
-        desired_chance_of_one: (float)
-            The probability to measure against.
 
         Returns
         -------
@@ -557,7 +555,7 @@ class Circuit(object):
             state = self.STARTING_STATES[i]
             probability = desired_chance_of_one[i]
 
-            found_probability = self.find_init_state_probability(state, probability)
+            found_probability = self.find_init_state_probability(state)
             difference = abs(found_probability - probability)
 
             chance_format = "{:.3f}".format(found_probability)

@@ -50,18 +50,17 @@ class Chromosome(object):
         A list of angle values for the gates. This list is the same length as number of gates (len(_integer_list) / 3).
     _length: int
         The number of integers in the integer representation
-    _gate_list: List[str]
+    _gate_types: List[str]
         Experimental. Use to adjust how many types of quantum gates to include in the circuit during generation.
     _gate_dict: dict
     """
 
-    def __init__(self) -> None:
+    def __init__(self, gate_types: List[str]) -> None:
         """The Chromosome constructor"""
         self._integer_list: List[int] = []
         self._theta_list: List[float] = []
         self._length: int = 0
-        # possible gates: h, cx, x, swap, rzz, rxx, toffoli, y
-        self._gate_list = ['cx', 'h', 'swap', 'rxx', 'rzz', 'toffoli', 'x', 'z', 'y']
+        self._gate_types = gate_types
         self._gate_dict: dict = self._create_gate_dict()
 
     def __repr__(self) -> str:
@@ -77,10 +76,10 @@ class Chromosome(object):
         yield from self._integer_list
 
     def _create_gate_dict(self) -> dict:
-        """Creates and return a dict of the _gate_list"""
+        """Creates and return a dict of the _gate_types"""
         gate_dict: dict = {}
-        for j in range(0, len(self._gate_list)):
-            gate_dict[str(j)] = self._gate_list[j]
+        for j in range(0, len(self._gate_types)):
+            gate_dict[str(j)] = self._gate_types[j]
         return gate_dict
 
     def set_integer_list(self, integer_list: List[int]):
@@ -208,7 +207,7 @@ class Chromosome(object):
         self.clear()
         for i in range(gates * 3):
             if i % 3 == 0:
-                self._integer_list.append(random.randrange(0, len(self._gate_list)))
+                self._integer_list.append(random.randrange(0, len(self._gate_types)))
             else:
                 self._integer_list.append(random.randrange(0, 3))
 
@@ -245,7 +244,7 @@ class Chromosome(object):
         """
         random_index = random.randrange(0, int(self._length/3)) * 3
 
-        self._integer_list[random_index] = random.randrange(0, len(self._gate_list))
+        self._integer_list[random_index] = random.randrange(0, len(self._gate_types))
         self._integer_list[random_index + 1] = random.randrange(0, 3)
         self._integer_list[random_index + 2] = random.randrange(0, 3)
 
@@ -317,13 +316,13 @@ class Generation(object):
         self._chromosomes: int = chromosomes
         self._gates: int = gates
 
-    def create_initial_generation(self) -> None:
+    def create_initial_generation(self, gate_types: List[str]) -> None:
         """
         Populates the generation with chromosomes.
         """
         self.chromosome_list.clear()
         for i in range(self._chromosomes):
-            chromosome = Chromosome()
+            chromosome = Chromosome(gate_types)
             chromosome.generate_random_chromosome(self._gates)
             self.chromosome_list.append(chromosome)
 
@@ -522,12 +521,13 @@ class Circuit(object):
 
             state = self.STARTING_STATES[i]
             probability = desired_chance_of_one[i]
-            difference = self.find_init_state_fitness(state, probability)
+            found_probability = self.find_init_state_probability(state, probability)
+            difference = abs(probability - found_probability)
             fitness = fitness + difference
 
         return fitness
 
-    def find_init_state_fitness(self, state: List[int], desired_chance_of_one: float) -> float:
+    def find_init_state_probability(self, state: List[int], desired_chance_of_one: float) -> float:
         """
         Finds the difference between the desired probability and measured probability for given state.
 
@@ -547,8 +547,7 @@ class Circuit(object):
         self.initialize_initial_states(state)
         self.generate_circuit()
         chance_of_one = self.calculate_probability_of_one()
-        difference = abs(desired_chance_of_one - chance_of_one)
-        return difference
+        return chance_of_one
 
     def print_ca_outcomes(self, desired_chance_of_one: List[float]):
         """Prints a table of the results from a run of the chromosome"""
@@ -557,11 +556,11 @@ class Circuit(object):
         for i in range(0, len(self.STARTING_STATES)):
             state = self.STARTING_STATES[i]
             probability = desired_chance_of_one[i]
-            difference = self.find_init_state_fitness(state, probability)
 
-            chance_of_one = abs(difference - probability)
+            found_probability = self.find_init_state_probability(state, probability)
+            difference = abs(found_probability - probability)
 
-            chance_format = "{:.3f}".format(chance_of_one)
+            chance_format = "{:.3f}".format(found_probability)
             diff_format = "{:.3f}".format(difference)
 
             print(str(self.STARTING_STATES[i]) + "              "

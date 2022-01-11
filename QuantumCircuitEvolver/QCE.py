@@ -12,9 +12,11 @@ from quantum_circuit_evolver import *
 # Add crossover mutation
 
 if __name__ == '__main__':
-    gates = 5
+    gates = 10
     chromosomes = 10
     generations = 40
+    gate_types = ['cx', 'h', 'x']
+    # possible gates: # h, cx, x, swap, rzz, rxx, toffoli, y
 
     desired_chance_of_one = [1, 0, 1, 0, 0, 1, 0, 1]  # Very good results
     # desired_chance_of_one = [0, 1, 1, 0, 1, 1, 0, 1]
@@ -26,7 +28,7 @@ if __name__ == '__main__':
 
     # Generate initial generation of chromosomes
     init_gen = Generation(10, gates)
-    init_gen.create_initial_generation()
+    init_gen.create_initial_generation(gate_types)
 
     init_gen.run_generation(desired_chance_of_one)
 

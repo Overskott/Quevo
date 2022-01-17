@@ -1,10 +1,11 @@
-# Written by Sebastian T. Overskott, 2022. Github link: https://github.com/Overskott/Evolving-quantum-circuits
+# Written by Sebastian T. Overskott Jan. 2022. Github link: https://github.com/Overskott/Evolving-quantum-circuits
 
 import copy
 import math
 import random
 from typing import List
 from qiskit import *
+from scipy.special import rel_entr
 
 
 class Chromosome(object):
@@ -151,8 +152,8 @@ class Chromosome(object):
 
         for i in range(0, gates):
             int_index = i * 3
-            gate = self._gate_dict[str(change_list[int_index])]
-            if self._integer_list[int_index] == 1 and gate in ['rzz', 'rxx']:
+            gate = self._gate_dict[str(self._integer_list[int_index])]
+            if change_list[i] == 1 and gate in ['rzz', 'rxx']:
                 theta = random.uniform(0, 2 * math.pi)
                 self._theta_list[i] = theta
             elif gate in ['rzz', 'rxx']:
@@ -215,7 +216,7 @@ class Chromosome(object):
         self._fix_duplicate_qubit_assignment()
         self._generate_theta_list()
 
-    def mutate_chromosome(self, probability: int = 40) -> None:
+    def mutate_chromosome(self, probability: int = 30) -> None:
         """
         Mutates the chromosome. Mutation can be of either replacing a random gate in the chromosome
         with a randomly generated new one, or replacing the chromosome by a randomly generated new one.
@@ -230,7 +231,7 @@ class Chromosome(object):
 
         old_integer_list = copy.copy(self._integer_list)
 
-        if random.randrange(0, 100) > probability:
+        if random.randrange(0, 100) >= probability:
             self._replace_gate_with_random_gate()
         else:
             self._replace_with_random_chromosome()
@@ -357,7 +358,7 @@ class Generation(object):
 
         for chromosome in self.chromosome_list:
             circuit = Circuit(chromosome)
-            chromosome_fitness = circuit.find_chromosome_fitness(desired_outcome)
+            chromosome_fitness = abs(circuit.find_kullback_liebler_fitness(desired_outcome))
             self.fitness_list.append(chromosome_fitness)
 
     def get_best_fitness(self):
@@ -496,10 +497,11 @@ class Circuit(object):
         if '1' in counts:
             chance_of_one = counts['1'] / self.shots
         else:
-            chance_of_one = 0
+            chance_of_one = 0.0
 
         return chance_of_one
 
+    #TODO: Check out: https://en.wikipedia.org/wiki/Kullback%E2%80%93Leibler_divergence
     def find_chromosome_fitness(self, desired_chance_of_one: List[float]) -> float:
         """
         Calculates and return the fitness for the chromosome i.e.
@@ -522,9 +524,41 @@ class Circuit(object):
             state = self.STARTING_STATES[i]
             probability = desired_chance_of_one[i]
             found_probability = self.find_init_state_probability(state)
+
             difference = abs(probability - found_probability)
             fitness = fitness + difference
 
+        return fitness
+
+    def find_kullback_liebler_fitness(self, desired_chance_of_one: List[float]) -> float:
+        """
+        Calculates and return the fitness for the chromosome with relative entropy (Kullback-Liebler).
+
+        Parameters
+        ----------
+        desired_chance_of_one: List[float]
+            A list of desired probabilities for all the CA initial states.
+
+        Returns
+        -------
+        fitness: (float)
+            The chromosome fitness.
+
+        """
+        fitness = 0
+        probabilities = []
+        found_probabilities = []
+        for i in range(0, len(self.STARTING_STATES)):
+
+            state = self.STARTING_STATES[i]
+            found_probabilities.append(self.find_init_state_probability(state))
+            probabilities.append(desired_chance_of_one[i])
+
+        p = found_probabilities
+        q = probabilities
+        d = sum(rel_entr(p, q))
+
+        fitness = fitness + d
         return fitness
 
     def find_init_state_probability(self, state: List[int]) -> float:
@@ -556,13 +590,15 @@ class Circuit(object):
             probability = desired_chance_of_one[i]
 
             found_probability = self.find_init_state_probability(state)
+            # found_probability = self.find_kullback_liebler_fitness(state)
             difference = abs(found_probability - probability)
 
-            chance_format = "{:.3f}".format(found_probability)
-            diff_format = "{:.3f}".format(difference)
+            desired_format = "{:.4f}".format(desired_chance_of_one[i])
+            chance_format = "{:.4f}".format(found_probability)
+            diff_format = "{:.4f}".format(difference)
 
-            print(str(self.STARTING_STATES[i]) + "              "
-                  + str(float(desired_chance_of_one[i])) + "               "
+            print(str(self.STARTING_STATES[i]) + "           "
+                  + desired_format + "           "
                   + chance_format + "           "
                   + diff_format)
             self.clear_circuit()

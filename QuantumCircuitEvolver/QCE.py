@@ -1,4 +1,4 @@
-# Written by Sebastian T. Overskott 2022. Github link: https://github.com/Overskott/Evolving-quantum-circuits
+# Written by Sebastian T. Overskott Jan. 2022. Github link: https://github.com/Overskott/Evolving-quantum-circuits
 
 from quantum_circuit_evolver import *
 
@@ -15,11 +15,15 @@ if __name__ == '__main__':
     gates = 10
     chromosomes = 10
     generations = 40
-    gate_types = ['cx', 'h', 'x']
-    # possible gates: # h, cx, x, swap, rzz, rxx, toffoli, y
+    gate_types = ['cx', 'x', 'h', 'rzz', 'rxx', 'toffoli']
+    # possible gates: # h, cx, x, swap, rzz, rxx, toffoli, y, z
 
-    desired_chance_of_one = [1, 0, 1, 0, 0, 1, 0, 1]  # Very good results
+    # desired_chance_of_one = [1, 0, 1, 0, 0, 1, 0, 1]  # Very good results
     # desired_chance_of_one = [0, 1, 1, 0, 1, 1, 0, 1]
+
+    desired_chance_of_one = [0.394221, 0.094721, 0.239492, 0.408455, 0.0, 0.730203, 0.915034, 1.0]
+    # Probabilities from : https://link.springer.com/article/10.1007/s11571-020-09600-x
+
     # desired_chance_of_one = [0.5, 0.7, 0.4, 0.0, 0.2, 0.7, 0.1, 0.9]  # Good results
     # desired_chance_of_one = [1, 1, 1, 1, 1, 1, 1, 1]  # Bad results
     # desired_chance_of_one = [0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8]  # Bad result
@@ -51,6 +55,10 @@ if __name__ == '__main__':
         # Check every Chromosome's fitness
         next_gen.run_generation(desired_chance_of_one)
 
+        next_gen.print_chromosomes()
+        next_gen.print_theta_values()
+        next_gen.print_fitness()
+
         current_fitness = next_gen.get_best_fitness()
         current_chromosome = next_gen.get_best_chromosome()
 
@@ -63,14 +71,14 @@ if __name__ == '__main__':
 
         # Check if there is a new_list best chromosome
 
-        if final_fitness > current_fitness:
+        if final_fitness > abs(current_fitness):
             final_fitness = current_fitness
             best_chromosome = current_chromosome
             print("New best!")
             print("------------------------------------------------------------------------------")
             print("\n")
         if current_fitness < 0.01:
-            break
+             break
     print("Best fitness found: " + str(final_fitness))
     print("Best chromosome found: " + str(best_chromosome))
 

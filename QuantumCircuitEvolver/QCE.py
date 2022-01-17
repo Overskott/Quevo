@@ -15,7 +15,7 @@ if __name__ == '__main__':
     gates = 10
     chromosomes = 10
     generations = 40
-    gate_types = ['cx', 'x', 'h', 'rzz', 'rxx', 'toffoli']
+    gate_types = ['cx', 'x', 'h', 'rxx', 'rzz', 'swap', 'z', 'y', 'toffoli']
     # possible gates: # h, cx, x, swap, rzz, rxx, toffoli, y, z
 
     # desired_chance_of_one = [1, 0, 1, 0, 0, 1, 0, 1]  # Very good results
@@ -31,6 +31,7 @@ if __name__ == '__main__':
     # desired_chance_of_one = [1.0, 0.5, 1.0, 0.0, 0.0, 1.0, 0.5, 0.0]  # Ok results
 
     # Generate initial generation of chromosomes
+
     init_gen = Generation(10, gates)
     init_gen.create_initial_generation(gate_types)
 
@@ -54,10 +55,6 @@ if __name__ == '__main__':
 
         # Check every Chromosome's fitness
         next_gen.run_generation(desired_chance_of_one)
-
-        next_gen.print_chromosomes()
-        next_gen.print_theta_values()
-        next_gen.print_fitness()
 
         current_fitness = next_gen.get_best_fitness()
         current_chromosome = next_gen.get_best_chromosome()

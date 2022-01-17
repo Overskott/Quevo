@@ -358,7 +358,7 @@ class Generation(object):
 
         for chromosome in self.chromosome_list:
             circuit = Circuit(chromosome)
-            chromosome_fitness = abs(circuit.find_kullback_liebler_fitness(desired_outcome))
+            chromosome_fitness = abs(circuit.find_chromosome_fitness(desired_outcome))
             self.fitness_list.append(chromosome_fitness)
 
     def get_best_fitness(self):
@@ -501,7 +501,6 @@ class Circuit(object):
 
         return chance_of_one
 
-    #TODO: Check out: https://en.wikipedia.org/wiki/Kullback%E2%80%93Leibler_divergence
     def find_chromosome_fitness(self, desired_chance_of_one: List[float]) -> float:
         """
         Calculates and return the fitness for the chromosome i.e.

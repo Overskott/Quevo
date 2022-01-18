@@ -51,7 +51,6 @@ if __name__ == '__main__':
         # Mutate next generation of chromosomes
         next_gen = Generation(chromosomes, gates)
         next_gen.create_mutated_generation(current_chromosome)
-        next_gen.print_theta_values()
 
         # Check every Chromosome's fitness
         next_gen.run_generation(desired_chance_of_one)

@@ -1,6 +1,7 @@
 # Written by Sebastian T. Overskott Jan. 2022. Github link: https://github.com/Overskott/Evolving-quantum-circuits
 
 from quantum_circuit_evolver import *
+import matplotlib.pyplot as plt
 
 # DONE: Documentation and comments
 # TODO: Error and exception handling
@@ -17,9 +18,6 @@ if __name__ == '__main__':
     generations = 40
     gate_types = ['cx', 'x', 'h', 'rxx', 'rzz', 'swap', 'z', 'y', 'toffoli']
     # possible gates: # h, cx, x, swap, rzz, rxx, toffoli, y, z
-
-    # desired_chance_of_one = [1, 0, 1, 0, 0, 1, 0, 1]  # Very good results
-    # desired_chance_of_one = [0, 1, 1, 0, 1, 1, 0, 1]
 
     desired_chance_of_one = [0.394221, 0.094721, 0.239492, 0.408455, 0.0, 0.730203, 0.915034, 1.0]
     # Probabilities from : https://link.springer.com/article/10.1007/s11571-020-09600-x
@@ -46,12 +44,14 @@ if __name__ == '__main__':
     best_chromosome = current_chromosome
     final_fitness = init_gen.get_best_fitness()
 
+    final_fitness_list = [final_fitness]
     # Mutation loop
     for gen in range(0, generations):
 
         # Mutate next generation of chromosomes
         next_gen = Generation(chromosomes, gates)
         next_gen.create_mutated_generation(current_chromosome)
+        next_gen.print_theta_values()
 
         # Check every Chromosome's fitness
         next_gen.run_generation(desired_chance_of_one)
@@ -74,8 +74,10 @@ if __name__ == '__main__':
             print("New best!")
             print("------------------------------------------------------------------------------")
             print("\n")
+
+        final_fitness_list.append(final_fitness)
         if current_fitness < 0.01:
-             break
+            break
     print("Best fitness found: " + str(final_fitness))
     print("Best chromosome found: " + str(best_chromosome))
 
@@ -85,3 +87,6 @@ if __name__ == '__main__':
 
     circuit.generate_circuit()
     circuit.draw()
+
+    plt.plot(final_fitness_list)
+    plt.show()

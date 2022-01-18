@@ -516,14 +516,12 @@ class Circuit(object):
         fitness: (float)
             The chromosome fitness.
         """
-
         fitness = 0
         for i in range(0, len(self.STARTING_STATES)):
 
             state = self.STARTING_STATES[i]
             probability = desired_chance_of_one[i]
             found_probability = self.find_init_state_probability(state)
-
             difference = abs(probability - found_probability)
             fitness = fitness + difference
 
@@ -555,6 +553,12 @@ class Circuit(object):
 
         p = found_probabilities
         q = probabilities
+
+        if p == 0:
+            p = 0.00001
+        if q == 0:
+            q = 0.00001
+
         d = sum(rel_entr(p, q))
 
         fitness = fitness + d
@@ -577,13 +581,14 @@ class Circuit(object):
         self.clear_circuit()
         self.initialize_initial_states(state)
         self.generate_circuit()
+
         chance_of_one = self.calculate_probability_of_one()
         return chance_of_one
 
     def print_ca_outcomes(self, desired_chance_of_one: List[float]):
         """Prints a table of the results from a run of the chromosome"""
         print("Initial State | Desired outcome | Actual outcome  | Difference")
-
+        total_diff = 0
         for i in range(0, len(self.STARTING_STATES)):
             state = self.STARTING_STATES[i]
             probability = desired_chance_of_one[i]
@@ -591,7 +596,7 @@ class Circuit(object):
             found_probability = self.find_init_state_probability(state)
             # found_probability = self.find_kullback_liebler_fitness(state)
             difference = abs(found_probability - probability)
-
+            total_diff = total_diff + difference
             desired_format = "{:.4f}".format(desired_chance_of_one[i])
             chance_format = "{:.4f}".format(found_probability)
             diff_format = "{:.4f}".format(difference)
@@ -601,6 +606,7 @@ class Circuit(object):
                   + chance_format + "           "
                   + diff_format)
             self.clear_circuit()
+        print("Total difference: " + str(total_diff))
 
     def print_counts(self):
         """Prints the counts result from simulation"""

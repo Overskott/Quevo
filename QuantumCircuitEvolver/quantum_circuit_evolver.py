@@ -216,7 +216,7 @@ class Chromosome(object):
         self._fix_duplicate_qubit_assignment()
         self._generate_theta_list()
 
-    def mutate_chromosome(self, probability: int = 30) -> None:
+    def mutate_chromosome(self, probability: int) -> None:
         """
         Mutates the chromosome. Mutation can be of either replacing a random gate in the chromosome
         with a randomly generated new one, or replacing the chromosome by a randomly generated new one.
@@ -231,7 +231,7 @@ class Chromosome(object):
 
         old_integer_list = copy.copy(self._integer_list)
 
-        if random.randrange(0, 100) >= probability:
+        if random.randrange(0, 100) <= probability:
             self._replace_gate_with_random_gate()
         else:
             self._replace_with_random_chromosome()
@@ -327,7 +327,7 @@ class Generation(object):
             chromosome.generate_random_chromosome(self._gates)
             self.chromosome_list.append(chromosome)
 
-    def create_mutated_generation(self, parent: Chromosome) -> None:
+    def create_mutated_generation(self, parent: Chromosome, probability=70) -> None:
         """
         Populates the generation with mutated chromosomes. The parent in included as the first member of the next
         generation. The mutated chromosomes uses parameter parent as source for mutation.
@@ -342,10 +342,10 @@ class Generation(object):
         self.chromosome_list.append(parent)
         for i in range(self._chromosomes-1):
             mutated_chromosome = copy.deepcopy(parent)
-            mutated_chromosome.mutate_chromosome()
+            mutated_chromosome.mutate_chromosome(probability)
             self.chromosome_list.append(mutated_chromosome)
 
-    def run_generation(self, desired_outcome: List[float]) -> None:
+    def run_generation_diff(self, desired_outcome: List[float]) -> None:
         """
         Runs the simulator for all the chromosomes in the generation and
         stores the fitness for each chromosome in fitness_list.
@@ -359,6 +359,22 @@ class Generation(object):
         for chromosome in self.chromosome_list:
             circuit = Circuit(chromosome)
             chromosome_fitness = abs(circuit.find_chromosome_fitness(desired_outcome))
+            self.fitness_list.append(chromosome_fitness)
+
+    def run_generation_KL(self, desired_outcome: List[float]) -> None:
+        """
+        Runs the simulator for all the chromosomes in the generation and
+        stores the fitness for each chromosome in fitness_list.
+
+        Parameters
+        ----------
+        desired_outcome (List[float]):
+            A list of the eight CA outcomes we wish to test the chromosomes against.
+        """
+
+        for chromosome in self.chromosome_list:
+            circuit = Circuit(chromosome)
+            chromosome_fitness = abs(circuit.find_kullback_liebler_fitness(desired_outcome))
             self.fitness_list.append(chromosome_fitness)
 
     def get_best_fitness(self):
@@ -607,6 +623,18 @@ class Circuit(object):
                   + diff_format)
             self.clear_circuit()
         print("Total difference: " + str(total_diff))
+
+    def get_total_difference(self, desired_chance_of_one: List[float]):
+        total_diff = 0
+        for i in range(0, len(self.STARTING_STATES)):
+            state = self.STARTING_STATES[i]
+            probability = desired_chance_of_one[i]
+
+            found_probability = self.find_init_state_probability(state)
+            difference = abs(found_probability - probability)
+            total_diff = total_diff + difference
+
+        return total_diff
 
     def print_counts(self):
         """Prints the counts result from simulation"""

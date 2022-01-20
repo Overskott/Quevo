@@ -22,18 +22,11 @@ if __name__ == '__main__':
     desired_chance_of_one = [0.394221, 0.094721, 0.239492, 0.408455, 0.0, 0.730203, 0.915034, 1.0]
     # Probabilities from : https://link.springer.com/article/10.1007/s11571-020-09600-x
 
-    # desired_chance_of_one = [0.5, 0.7, 0.4, 0.0, 0.2, 0.7, 0.1, 0.9]  # Good results
-    # desired_chance_of_one = [1, 1, 1, 1, 1, 1, 1, 1]  # Bad results
-    # desired_chance_of_one = [0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8]  # Bad result
-    # desired_chance_of_one = [0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5]  # very good
-    # desired_chance_of_one = [1.0, 0.5, 1.0, 0.0, 0.0, 1.0, 0.5, 0.0]  # Ok results
-
     # Generate initial generation of chromosomes
-
     init_gen = Generation(10, gates)
     init_gen.create_initial_generation(gate_types)
 
-    init_gen.run_generation(desired_chance_of_one)
+    init_gen.run_generation_diff(desired_chance_of_one)
 
     print("Fitness for best chromosome: " + str(init_gen.get_best_fitness()) + "\n"
           + "Best chromosome: \n" + str(init_gen.get_best_chromosome()))
@@ -45,15 +38,21 @@ if __name__ == '__main__':
     final_fitness = init_gen.get_best_fitness()
 
     final_fitness_list = [final_fitness]
+    random_list = [final_fitness]
+    list_10 = [final_fitness]
+    list_50 = [final_fitness]
+    list_70 = [final_fitness]
+
     # Mutation loop
+
     for gen in range(0, generations):
 
         # Mutate next generation of chromosomes
         next_gen = Generation(chromosomes, gates)
-        next_gen.create_mutated_generation(current_chromosome)
+        next_gen.create_mutated_generation(current_chromosome, 10)
 
         # Check every Chromosome's fitness
-        next_gen.run_generation(desired_chance_of_one)
+        next_gen.run_generation_diff(desired_chance_of_one)
 
         current_fitness = next_gen.get_best_fitness()
         current_chromosome = next_gen.get_best_chromosome()
@@ -74,7 +73,6 @@ if __name__ == '__main__':
             print("------------------------------------------------------------------------------")
             print("\n")
 
-        final_fitness_list.append(final_fitness)
         if current_fitness < 0.01:
             break
     print("Best fitness found: " + str(final_fitness))
@@ -87,5 +85,3 @@ if __name__ == '__main__':
     circuit.generate_circuit()
     circuit.draw()
 
-    plt.plot(final_fitness_list)
-    plt.show()

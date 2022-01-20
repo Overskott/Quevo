@@ -1,10 +1,11 @@
-# Written by Sebastian T. Overskott, 2022. Github link: https://github.com/Overskott/Evolving-quantum-circuits
+# Written by Sebastian T. Overskott Jan. 2022. Github link: https://github.com/Overskott/Evolving-quantum-circuits
 
 import copy
 import math
 import random
 from typing import List
 from qiskit import *
+from scipy.special import rel_entr
 
 
 class Chromosome(object):
@@ -151,8 +152,8 @@ class Chromosome(object):
 
         for i in range(0, gates):
             int_index = i * 3
-            gate = self._gate_dict[str(change_list[int_index])]
-            if self._integer_list[int_index] == 1 and gate in ['rzz', 'rxx']:
+            gate = self._gate_dict[str(self._integer_list[int_index])]
+            if change_list[i] == 1 and gate in ['rzz', 'rxx']:
                 theta = random.uniform(0, 2 * math.pi)
                 self._theta_list[i] = theta
             elif gate in ['rzz', 'rxx']:
@@ -215,7 +216,7 @@ class Chromosome(object):
         self._fix_duplicate_qubit_assignment()
         self._generate_theta_list()
 
-    def mutate_chromosome(self, probability: int = 40) -> None:
+    def mutate_chromosome(self, probability: int) -> None:
         """
         Mutates the chromosome. Mutation can be of either replacing a random gate in the chromosome
         with a randomly generated new one, or replacing the chromosome by a randomly generated new one.
@@ -230,7 +231,7 @@ class Chromosome(object):
 
         old_integer_list = copy.copy(self._integer_list)
 
-        if random.randrange(0, 100) > probability:
+        if random.randrange(0, 100) <= probability:
             self._replace_gate_with_random_gate()
         else:
             self._replace_with_random_chromosome()
@@ -326,7 +327,7 @@ class Generation(object):
             chromosome.generate_random_chromosome(self._gates)
             self.chromosome_list.append(chromosome)
 
-    def create_mutated_generation(self, parent: Chromosome) -> None:
+    def create_mutated_generation(self, parent: Chromosome, probability=70) -> None:
         """
         Populates the generation with mutated chromosomes. The parent in included as the first member of the next
         generation. The mutated chromosomes uses parameter parent as source for mutation.
@@ -341,10 +342,10 @@ class Generation(object):
         self.chromosome_list.append(parent)
         for i in range(self._chromosomes-1):
             mutated_chromosome = copy.deepcopy(parent)
-            mutated_chromosome.mutate_chromosome()
+            mutated_chromosome.mutate_chromosome(probability)
             self.chromosome_list.append(mutated_chromosome)
 
-    def run_generation(self, desired_outcome: List[float]) -> None:
+    def run_generation_diff(self, desired_outcome: List[float]) -> None:
         """
         Runs the simulator for all the chromosomes in the generation and
         stores the fitness for each chromosome in fitness_list.
@@ -357,7 +358,23 @@ class Generation(object):
 
         for chromosome in self.chromosome_list:
             circuit = Circuit(chromosome)
-            chromosome_fitness = circuit.find_chromosome_fitness(desired_outcome)
+            chromosome_fitness = abs(circuit.find_chromosome_fitness(desired_outcome))
+            self.fitness_list.append(chromosome_fitness)
+
+    def run_generation_KL(self, desired_outcome: List[float]) -> None:
+        """
+        Runs the simulator for all the chromosomes in the generation and
+        stores the fitness for each chromosome in fitness_list.
+
+        Parameters
+        ----------
+        desired_outcome (List[float]):
+            A list of the eight CA outcomes we wish to test the chromosomes against.
+        """
+
+        for chromosome in self.chromosome_list:
+            circuit = Circuit(chromosome)
+            chromosome_fitness = abs(circuit.find_kullback_liebler_fitness(desired_outcome))
             self.fitness_list.append(chromosome_fitness)
 
     def get_best_fitness(self):
@@ -496,7 +513,7 @@ class Circuit(object):
         if '1' in counts:
             chance_of_one = counts['1'] / self.shots
         else:
-            chance_of_one = 0
+            chance_of_one = 0.0
 
         return chance_of_one
 
@@ -515,7 +532,6 @@ class Circuit(object):
         fitness: (float)
             The chromosome fitness.
         """
-
         fitness = 0
         for i in range(0, len(self.STARTING_STATES)):
 
@@ -525,6 +541,43 @@ class Circuit(object):
             difference = abs(probability - found_probability)
             fitness = fitness + difference
 
+        return fitness
+
+    def find_kullback_liebler_fitness(self, desired_chance_of_one: List[float]) -> float:
+        """
+        Calculates and return the fitness for the chromosome with relative entropy (Kullback-Liebler).
+
+        Parameters
+        ----------
+        desired_chance_of_one: List[float]
+            A list of desired probabilities for all the CA initial states.
+
+        Returns
+        -------
+        fitness: (float)
+            The chromosome fitness.
+
+        """
+        fitness = 0
+        probabilities = []
+        found_probabilities = []
+        for i in range(0, len(self.STARTING_STATES)):
+
+            state = self.STARTING_STATES[i]
+            found_probabilities.append(self.find_init_state_probability(state))
+            probabilities.append(desired_chance_of_one[i])
+
+        p = found_probabilities
+        q = probabilities
+
+        if p == 0:
+            p = 0.00001
+        if q == 0:
+            q = 0.00001
+
+        d = sum(rel_entr(p, q))
+
+        fitness = fitness + d
         return fitness
 
     def find_init_state_probability(self, state: List[int]) -> float:
@@ -544,28 +597,44 @@ class Circuit(object):
         self.clear_circuit()
         self.initialize_initial_states(state)
         self.generate_circuit()
+
         chance_of_one = self.calculate_probability_of_one()
         return chance_of_one
 
     def print_ca_outcomes(self, desired_chance_of_one: List[float]):
         """Prints a table of the results from a run of the chromosome"""
         print("Initial State | Desired outcome | Actual outcome  | Difference")
+        total_diff = 0
+        for i in range(0, len(self.STARTING_STATES)):
+            state = self.STARTING_STATES[i]
+            probability = desired_chance_of_one[i]
 
+            found_probability = self.find_init_state_probability(state)
+            # found_probability = self.find_kullback_liebler_fitness(state)
+            difference = abs(found_probability - probability)
+            total_diff = total_diff + difference
+            desired_format = "{:.4f}".format(desired_chance_of_one[i])
+            chance_format = "{:.4f}".format(found_probability)
+            diff_format = "{:.4f}".format(difference)
+
+            print(str(self.STARTING_STATES[i]) + "           "
+                  + desired_format + "           "
+                  + chance_format + "           "
+                  + diff_format)
+            self.clear_circuit()
+        print("Total difference: " + str(total_diff))
+
+    def get_total_difference(self, desired_chance_of_one: List[float]):
+        total_diff = 0
         for i in range(0, len(self.STARTING_STATES)):
             state = self.STARTING_STATES[i]
             probability = desired_chance_of_one[i]
 
             found_probability = self.find_init_state_probability(state)
             difference = abs(found_probability - probability)
+            total_diff = total_diff + difference
 
-            chance_format = "{:.3f}".format(found_probability)
-            diff_format = "{:.3f}".format(difference)
-
-            print(str(self.STARTING_STATES[i]) + "              "
-                  + str(float(desired_chance_of_one[i])) + "               "
-                  + chance_format + "           "
-                  + diff_format)
-            self.clear_circuit()
+        return total_diff
 
     def print_counts(self):
         """Prints the counts result from simulation"""

@@ -1,7 +1,8 @@
 # Written by Sebastian T. Overskott Jan. 2022. Github link: https://github.com/Overskott/Evolving-quantum-circuits
 
-from quantum_circuit_evolver import *
-import matplotlib.pyplot as plt
+# from quantum_circuit_evolver import *
+
+import Quevo
 
 # DONE: Documentation and comments
 # TODO: Error and exception handling
@@ -23,7 +24,7 @@ if __name__ == '__main__':
     # Probabilities from : https://link.springer.com/article/10.1007/s11571-020-09600-x
 
     # Generate initial generation of chromosomes
-    init_gen = Generation(10, gates)
+    init_gen = Quevo.Generation(10, gates)
     init_gen.create_initial_generation(gate_types)
 
     init_gen.run_generation_diff(desired_chance_of_one)
@@ -48,7 +49,7 @@ if __name__ == '__main__':
     for gen in range(0, generations):
 
         # Mutate next generation of chromosomes
-        next_gen = Generation(chromosomes, gates)
+        next_gen = Quevo.Generation(chromosomes, gates)
         next_gen.create_mutated_generation(current_chromosome, 10)
 
         # Check every Chromosome's fitness
@@ -78,7 +79,7 @@ if __name__ == '__main__':
     print("Best fitness found: " + str(final_fitness))
     print("Best chromosome found: " + str(best_chromosome))
 
-    circuit = Circuit(best_chromosome)
+    circuit = Quevo.Circuit(best_chromosome)
     circuit.print_ca_outcomes(desired_chance_of_one)
     print("\n")
 

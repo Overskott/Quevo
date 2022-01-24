@@ -59,16 +59,15 @@ Some gates (RZZ, RXX) also need an angle value (theta (0, 2pi)), which are autom
 
 ## User guide
 
-I will again suggest to take a look at the notebook [Evolving quantum circuits - Exapmle project](https://github.com/Overskott/Evolving-quantum-circuits/blob/main/Evolving%20quantum%20circuits%20-%20Example%20project.ipynb).
+I will again suggest to take a look at the notebook [Exapmle project](https://github.com/Overskott/Evolving-quantum-circuits/blob/main/Evolving%20quantum%20circuits%20-%20Example%20project.ipynb).
 If you want to learn more in detail about all the functions, please read the docstrings.
 
 ## Technologies
 Project is created with:
 * Python version: 3.8 
 * Qiskit version: 0.34.1
+* scipy.special: 1.7.1
 
 
-
-	
 ## Setup
-This project uses Qiskit. The best way of installing qiskit is by using pip: `$ pip install qiskit`
+This project uses Qiskit and scipy. The best way of installing qiskit is by using pip: `$ pip install qiskit` and `$ pip install scipy`

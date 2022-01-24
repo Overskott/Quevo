@@ -24,8 +24,8 @@ class Chromosome(object):
     The third int is what qubit is controlling the gate. in cases where gates do not have an
     external controller, this int is ignored.
 
-    The gates are given in the _gate_list attribute, and is hardcoded for the moment.
-    The table under shows what gates are acceptable and how to notate the in the _gae
+
+    The table under shows what gates are acceptable and how to notate the in the _gate_list
 
     | Supported gate types| Notation |
     |---------------------|----------|
@@ -50,8 +50,9 @@ class Chromosome(object):
     _length: int
         The number of integers in the integer representation
     _gate_types: List[str]
-        Experimental. Use to adjust how many types of quantum gates to include in the circuit during generation.
+        A list of all the gates the chromosome is allowed to operate with.
     _gate_dict: dict
+        The table that holds gates and integers
     """
 
     def __init__(self, gate_types: List[str]) -> None:

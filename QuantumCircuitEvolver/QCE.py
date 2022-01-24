@@ -58,7 +58,6 @@ if __name__ == '__main__':
         current_fitness = next_gen.get_best_fitness()
         current_chromosome = next_gen.get_best_chromosome()
 
-        next_gen.print_chromosomes()
         # Print generation best result
         print("Fitness for best mutated chromosome in mutation " + str(gen + 1) + ": "
               + str(current_fitness) + "\n"

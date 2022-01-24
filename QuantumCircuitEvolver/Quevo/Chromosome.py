@@ -231,9 +231,10 @@ class Chromosome(object):
 
         if random.randrange(0, 100) <= probability:
             self._replace_gate_with_random_gate()
+            print('gate replaced')
         else:
             self._change_qubit_connections()
-
+            print('connections changed')
         self._fix_duplicate_qubit_assignment()
         self._update_theta_list(old_integer_list, self._integer_list)
 
@@ -260,9 +261,15 @@ class Chromosome(object):
         """
 
         random_index = random.randrange(0, int(self._length / 3)) * 3
-        self._integer_list[random_index + 1] = random.randrange(0, 3)
-        self._integer_list[random_index + 2] = random.randrange(0, 3)
 
+        original_connection_1 = self._integer_list[random_index + 1]
+        original_connection_2 = self._integer_list[random_index + 2]
+
+        while original_connection_1 == self._integer_list[random_index + 1]:
+            self._integer_list[random_index + 1] = random.randrange(0, 3)
+
+        while original_connection_2 == self._integer_list[random_index + 2]:
+            self._integer_list[random_index + 2] = random.randrange(0, 3)
 
     def _fix_duplicate_qubit_assignment(self) -> None:
         """

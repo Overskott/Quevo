@@ -168,6 +168,7 @@ class Circuit(object):
         d = sum(rel_entr(p, q))
 
         fitness = fitness + d
+
         return fitness
 
     def find_init_state_probability(self, state: List[int]) -> float:

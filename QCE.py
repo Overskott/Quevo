@@ -1,29 +1,35 @@
-# Written by Sebastian T. Overskott Jan. 2022. Github link: https://github.com/Overskott/Evolving-quantum-circuits
+#  Copyright 2022 Sebastian T. Overskott Github link: https://github.com/Overskott/Quevo
+#
+#    Licensed under the Apache License, Version 2.0 (the "License");
+#    you may not use this file except in compliance with the License.
+#    You may obtain a copy of the License at
+#
+#        http://www.apache.org/licenses/LICENSE-2.0
+#
+#    Unless required by applicable law or agreed to in writing, software
+#    distributed under the License is distributed on an "AS IS" BASIS,
+#    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#    See the License for the specific language governing permissions and
+#    limitations under the License.
 
-from quantum_circuit_evolver import *
-import matplotlib.pyplot as plt
+
+import Quevo
 
 # DONE: Documentation and comments
 # TODO: Error and exception handling
 # TODO: Unit testing
 
-# Suggestions:
-# Add "softer" mutation i.e. just swapping connected qubits
-# Make the FF more punishing for bad solutions
-# Add crossover mutation
-
 if __name__ == '__main__':
-    gates = 10
+    gates = 5
     chromosomes = 10
-    generations = 40
+    generations = 100
     gate_types = ['cx', 'x', 'h', 'rxx', 'rzz', 'swap', 'z', 'y', 'toffoli']
-    # possible gates: # h, cx, x, swap, rzz, rxx, toffoli, y, z
 
     desired_chance_of_one = [0.394221, 0.094721, 0.239492, 0.408455, 0.0, 0.730203, 0.915034, 1.0]
     # Probabilities from : https://link.springer.com/article/10.1007/s11571-020-09600-x
 
     # Generate initial generation of chromosomes
-    init_gen = Generation(10, gates)
+    init_gen = Quevo.Generation(10, gates)
     init_gen.create_initial_generation(gate_types)
 
     init_gen.run_generation_diff(desired_chance_of_one)
@@ -48,11 +54,11 @@ if __name__ == '__main__':
     for gen in range(0, generations):
 
         # Mutate next generation of chromosomes
-        next_gen = Generation(chromosomes, gates)
-        next_gen.create_mutated_generation(current_chromosome, 10)
+        next_gen = Quevo.Generation(chromosomes, gates)
+        next_gen.create_mutated_generation(current_chromosome, 30)
 
         # Check every Chromosome's fitness
-        next_gen.run_generation_diff(desired_chance_of_one)
+        next_gen.run_generation_KL(desired_chance_of_one)
 
         current_fitness = next_gen.get_best_fitness()
         current_chromosome = next_gen.get_best_chromosome()
@@ -78,7 +84,7 @@ if __name__ == '__main__':
     print("Best fitness found: " + str(final_fitness))
     print("Best chromosome found: " + str(best_chromosome))
 
-    circuit = Circuit(best_chromosome)
+    circuit = Quevo.Circuit(best_chromosome)
     circuit.print_ca_outcomes(desired_chance_of_one)
     print("\n")
 

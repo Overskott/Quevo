@@ -11,11 +11,11 @@
 #    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
+
 import copy
 from typing import List
-
-from Quevo import Chromosome
-from Quevo.Circuit import Circuit
+from .Chromosome import Chromosome
+from .Circuit import Circuit
 
 
 class Generation(object):

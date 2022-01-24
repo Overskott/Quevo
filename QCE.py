@@ -19,17 +19,11 @@ import Quevo
 # TODO: Error and exception handling
 # TODO: Unit testing
 
-# Suggestions:
-# Add "softer" mutation i.e. just swapping connected qubits
-# Make the FF more punishing for bad solutions
-# Add crossover mutation
-
 if __name__ == '__main__':
     gates = 5
     chromosomes = 10
     generations = 100
     gate_types = ['cx', 'x', 'h', 'rxx', 'rzz', 'swap', 'z', 'y', 'toffoli']
-    # possible gates: # h, cx, x, swap, rzz, rxx, toffoli, y, z
 
     desired_chance_of_one = [0.394221, 0.094721, 0.239492, 0.408455, 0.0, 0.730203, 0.915034, 1.0]
     # Probabilities from : https://link.springer.com/article/10.1007/s11571-020-09600-x

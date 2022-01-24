@@ -13,11 +13,9 @@
 #    limitations under the License.
 
 from typing import List
-
 from qiskit import QuantumCircuit, Aer, assemble
 from scipy.special import rel_entr
-
-from Quevo.Chromosome import Chromosome
+from .Chromosome import Chromosome
 
 
 class Circuit(object):

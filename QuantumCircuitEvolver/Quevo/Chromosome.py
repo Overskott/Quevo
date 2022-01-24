@@ -232,10 +232,8 @@ class Chromosome(object):
 
         if random.randrange(0, 100) <= probability:
             self._replace_gate_with_random_gate()
-            print('gate replaced')
         else:
             self._change_qubit_connections()
-            print('connections changed')
         self._fix_duplicate_qubit_assignment()
         self._update_theta_list(old_integer_list, self._integer_list)
 

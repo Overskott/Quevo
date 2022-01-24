@@ -1,7 +1,8 @@
 # Written by Sebastian T. Overskott Jan. 2022. Github link: https://github.com/Overskott/Evolving-quantum-circuits
 
-from quantum_circuit_evolver import *
-import matplotlib.pyplot as plt
+# from quantum_circuit_evolver import *
+
+import Quevo
 
 # DONE: Documentation and comments
 # TODO: Error and exception handling
@@ -13,9 +14,9 @@ import matplotlib.pyplot as plt
 # Add crossover mutation
 
 if __name__ == '__main__':
-    gates = 10
+    gates = 5
     chromosomes = 10
-    generations = 40
+    generations = 100
     gate_types = ['cx', 'x', 'h', 'rxx', 'rzz', 'swap', 'z', 'y', 'toffoli']
     # possible gates: # h, cx, x, swap, rzz, rxx, toffoli, y, z
 
@@ -23,7 +24,7 @@ if __name__ == '__main__':
     # Probabilities from : https://link.springer.com/article/10.1007/s11571-020-09600-x
 
     # Generate initial generation of chromosomes
-    init_gen = Generation(10, gates)
+    init_gen = Quevo.Generation(10, gates)
     init_gen.create_initial_generation(gate_types)
 
     init_gen.run_generation_diff(desired_chance_of_one)
@@ -48,15 +49,16 @@ if __name__ == '__main__':
     for gen in range(0, generations):
 
         # Mutate next generation of chromosomes
-        next_gen = Generation(chromosomes, gates)
-        next_gen.create_mutated_generation(current_chromosome, 10)
+        next_gen = Quevo.Generation(chromosomes, gates)
+        next_gen.create_mutated_generation(current_chromosome, 30)
 
         # Check every Chromosome's fitness
-        next_gen.run_generation_diff(desired_chance_of_one)
+        next_gen.run_generation_KL(desired_chance_of_one)
 
         current_fitness = next_gen.get_best_fitness()
         current_chromosome = next_gen.get_best_chromosome()
 
+        next_gen.print_chromosomes()
         # Print generation best result
         print("Fitness for best mutated chromosome in mutation " + str(gen + 1) + ": "
               + str(current_fitness) + "\n"
@@ -78,7 +80,7 @@ if __name__ == '__main__':
     print("Best fitness found: " + str(final_fitness))
     print("Best chromosome found: " + str(best_chromosome))
 
-    circuit = Circuit(best_chromosome)
+    circuit = Quevo.Circuit(best_chromosome)
     circuit.print_ca_outcomes(desired_chance_of_one)
     print("\n")
 

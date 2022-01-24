@@ -14,9 +14,9 @@ import Quevo
 # Add crossover mutation
 
 if __name__ == '__main__':
-    gates = 10
+    gates = 5
     chromosomes = 10
-    generations = 40
+    generations = 100
     gate_types = ['cx', 'x', 'h', 'rxx', 'rzz', 'swap', 'z', 'y', 'toffoli']
     # possible gates: # h, cx, x, swap, rzz, rxx, toffoli, y, z
 
@@ -50,14 +50,15 @@ if __name__ == '__main__':
 
         # Mutate next generation of chromosomes
         next_gen = Quevo.Generation(chromosomes, gates)
-        next_gen.create_mutated_generation(current_chromosome, 10)
+        next_gen.create_mutated_generation(current_chromosome, 30)
 
         # Check every Chromosome's fitness
-        next_gen.run_generation_diff(desired_chance_of_one)
+        next_gen.run_generation_KL(desired_chance_of_one)
 
         current_fitness = next_gen.get_best_fitness()
         current_chromosome = next_gen.get_best_chromosome()
 
+        next_gen.print_chromosomes()
         # Print generation best result
         print("Fitness for best mutated chromosome in mutation " + str(gen + 1) + ": "
               + str(current_fitness) + "\n"

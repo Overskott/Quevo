@@ -232,7 +232,7 @@ class Chromosome(object):
         if random.randrange(0, 100) <= probability:
             self._replace_gate_with_random_gate()
         else:
-            self._replace_with_random_chromosome()
+            self._change_qubit_connections()
 
         self._fix_duplicate_qubit_assignment()
         self._update_theta_list(old_integer_list, self._integer_list)
@@ -254,9 +254,15 @@ class Chromosome(object):
         self.generate_random_chromosome(gates)
 
     def _change_qubit_connections(self) -> None:
-        """Finds randomly a gate that connects two qubits and randomly changes it connections."""
-        # TODO: implement
-        pass
+        """
+        Finds randomly a gate and randomly changes the target qubit for single qubit gates,
+        and both target and control for multiple qubit gates
+        """
+
+        random_index = random.randrange(0, int(self._length / 3)) * 3
+        self._integer_list[random_index + 1] = random.randrange(0, 3)
+        self._integer_list[random_index + 2] = random.randrange(0, 3)
+
 
     def _fix_duplicate_qubit_assignment(self) -> None:
         """

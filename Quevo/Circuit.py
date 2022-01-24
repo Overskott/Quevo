@@ -1,11 +1,21 @@
-# Written by Sebastian T. Overskott Jan. 2022. Github link: https://github.com/Overskott/Evolving-quantum-circuits
+#  Copyright 2022 Sebastian T. Overskott Github link: https://github.com/Overskott/Quevo
+#
+#    Licensed under the Apache License, Version 2.0 (the "License");
+#    you may not use this file except in compliance with the License.
+#    You may obtain a copy of the License at
+#
+#        http://www.apache.org/licenses/LICENSE-2.0
+#
+#    Unless required by applicable law or agreed to in writing, software
+#    distributed under the License is distributed on an "AS IS" BASIS,
+#    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#    See the License for the specific language governing permissions and
+#    limitations under the License.
 
 from typing import List
-
 from qiskit import QuantumCircuit, Aer, assemble
 from scipy.special import rel_entr
-
-from Quevo.Chromosome import Chromosome
+from .Chromosome import Chromosome
 
 
 class Circuit(object):
@@ -120,7 +130,7 @@ class Circuit(object):
         Returns
         -------
         fitness: (float)
-            The chromosome fitness.
+            The chromosome fitness score.
         """
         fitness = 0
         for i in range(0, len(self.STARTING_STATES)):
@@ -135,7 +145,7 @@ class Circuit(object):
 
     def find_kullback_liebler_fitness(self, desired_chance_of_one: List[float]) -> float:
         """
-        Calculates and return the fitness for the chromosome with relative entropy (Kullback-Liebler).
+        Calculates and return the fitness for the chromosome as relative entropy (Kullback-Liebler).
 
         Parameters
         ----------
@@ -145,7 +155,7 @@ class Circuit(object):
         Returns
         -------
         fitness: (float)
-            The chromosome fitness.
+            The the Kullback-Liebler divergence as chromosome fitness score.
 
         """
         fitness = 0
@@ -168,6 +178,7 @@ class Circuit(object):
         d = sum(rel_entr(p, q))
 
         fitness = fitness + d
+
         return fitness
 
     def find_init_state_probability(self, state: List[int]) -> float:

@@ -1,6 +1,17 @@
-# Written by Sebastian T. Overskott Jan. 2022. Github link: https://github.com/Overskott/Evolving-quantum-circuits
+#  Copyright 2022 Sebastian T. Overskott Github link: https://github.com/Overskott/Quevo
+#
+#    Licensed under the Apache License, Version 2.0 (the "License");
+#    you may not use this file except in compliance with the License.
+#    You may obtain a copy of the License at
+#
+#        http://www.apache.org/licenses/LICENSE-2.0
+#
+#    Unless required by applicable law or agreed to in writing, software
+#    distributed under the License is distributed on an "AS IS" BASIS,
+#    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#    See the License for the specific language governing permissions and
+#    limitations under the License.
 
-# from quantum_circuit_evolver import *
 
 import Quevo
 
@@ -8,17 +19,11 @@ import Quevo
 # TODO: Error and exception handling
 # TODO: Unit testing
 
-# Suggestions:
-# Add "softer" mutation i.e. just swapping connected qubits
-# Make the FF more punishing for bad solutions
-# Add crossover mutation
-
 if __name__ == '__main__':
     gates = 5
     chromosomes = 10
     generations = 100
     gate_types = ['cx', 'x', 'h', 'rxx', 'rzz', 'swap', 'z', 'y', 'toffoli']
-    # possible gates: # h, cx, x, swap, rzz, rxx, toffoli, y, z
 
     desired_chance_of_one = [0.394221, 0.094721, 0.239492, 0.408455, 0.0, 0.730203, 0.915034, 1.0]
     # Probabilities from : https://link.springer.com/article/10.1007/s11571-020-09600-x
@@ -58,7 +63,6 @@ if __name__ == '__main__':
         current_fitness = next_gen.get_best_fitness()
         current_chromosome = next_gen.get_best_chromosome()
 
-        next_gen.print_chromosomes()
         # Print generation best result
         print("Fitness for best mutated chromosome in mutation " + str(gen + 1) + ": "
               + str(current_fitness) + "\n"

@@ -1,4 +1,16 @@
-# Written by Sebastian T. Overskott Jan. 2022. Github link: https://github.com/Overskott/Evolving-quantum-circuits
+#  Copyright 2022 Sebastian T. Overskott Github link: https://github.com/Overskott/Quevo
+#
+#    Licensed under the Apache License, Version 2.0 (the "License");
+#    you may not use this file except in compliance with the License.
+#    You may obtain a copy of the License at
+#
+#        http://www.apache.org/licenses/LICENSE-2.0
+#
+#    Unless required by applicable law or agreed to in writing, software
+#    distributed under the License is distributed on an "AS IS" BASIS,
+#    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#    See the License for the specific language governing permissions and
+#    limitations under the License.
 
 import copy
 import math
@@ -24,8 +36,8 @@ class Chromosome(object):
     The third int is what qubit is controlling the gate. in cases where gates do not have an
     external controller, this int is ignored.
 
-    The gates are given in the _gate_list attribute, and is hardcoded for the moment.
-    The table under shows what gates are acceptable and how to notate the in the _gae
+
+    The table under shows what gates are acceptable and how to notate the in the _gate_list
 
     | Supported gate types| Notation |
     |---------------------|----------|
@@ -50,8 +62,9 @@ class Chromosome(object):
     _length: int
         The number of integers in the integer representation
     _gate_types: List[str]
-        Experimental. Use to adjust how many types of quantum gates to include in the circuit during generation.
+        A list of all the gates the chromosome is allowed to operate with.
     _gate_dict: dict
+        The table that holds gates and integers
     """
 
     def __init__(self, gate_types: List[str]) -> None:
@@ -233,7 +246,6 @@ class Chromosome(object):
             self._replace_gate_with_random_gate()
         else:
             self._change_qubit_connections()
-
         self._fix_duplicate_qubit_assignment()
         self._update_theta_list(old_integer_list, self._integer_list)
 
@@ -260,9 +272,15 @@ class Chromosome(object):
         """
 
         random_index = random.randrange(0, int(self._length / 3)) * 3
-        self._integer_list[random_index + 1] = random.randrange(0, 3)
-        self._integer_list[random_index + 2] = random.randrange(0, 3)
 
+        original_connection_1 = self._integer_list[random_index + 1]
+        original_connection_2 = self._integer_list[random_index + 2]
+
+        while original_connection_1 == self._integer_list[random_index + 1]:
+            self._integer_list[random_index + 1] = random.randrange(0, 3)
+
+        while original_connection_2 == self._integer_list[random_index + 2]:
+            self._integer_list[random_index + 2] = random.randrange(0, 3)
 
     def _fix_duplicate_qubit_assignment(self) -> None:
         """

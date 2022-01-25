@@ -48,6 +48,7 @@ class Generation(object):
         """
         self.chromosome_list: List[Chromosome] = []
         self.fitness_list: List[float] = []
+        self._selection_list: List[float] = []
         self._chromosomes: int = chromosomes
         self._gates: int = gates
 
@@ -78,6 +79,17 @@ class Generation(object):
             mutated_chromosome = copy.deepcopy(parent)
             mutated_chromosome.mutate_chromosome(probability)
             self.chromosome_list.append(mutated_chromosome)
+
+    def _fitness_proportionate_selection(self):
+        # TODO finish this
+        fitness_sum = 0
+        for fitness in self.fitness_list:
+            fitness_sum = fitness_sum + fitness
+
+        selection_probability = 0
+        for fitness in self.fitness_list:
+            selection_probability = fitness/fitness_sum
+            self._selection_list.append(selection_probability)
 
     def run_generation_diff(self, desired_outcome: List[float]) -> None:
         """

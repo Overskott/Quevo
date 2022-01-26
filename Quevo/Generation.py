@@ -13,6 +13,7 @@
 #    limitations under the License.
 
 import copy
+import random
 from typing import List
 from .Chromosome import Chromosome
 from .Circuit import Circuit
@@ -90,6 +91,25 @@ class Generation(object):
         for fitness in self.fitness_list:
             selection_probability = fitness/fitness_sum
             self._selection_list.append(selection_probability)
+
+        self._selection_list.sort()
+
+        total_probability = 0
+        probability = random.uniform(0, 1)
+        index = 0
+
+        for prob in self._selection_list:
+            total_probability = total_probability + prob
+
+            if probability < prob:
+                return self.chromosome_list[index]
+
+            index = index + 1
+
+
+
+
+
 
     def run_generation_diff(self, desired_outcome: List[float]) -> None:
         """

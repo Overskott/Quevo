@@ -165,7 +165,7 @@ class Generation(object):
             chromosome_fitness = abs(circuit.find_chromosome_fitness(desired_outcome))
             chromosome.set_fitness_score(chromosome_fitness)
 
-    def run_generation_KL(self, desired_outcome: List[float]) -> None:
+    def run_generation_kl(self, desired_outcome: List[float]) -> None:
         """
         Runs the simulator for all the chromosomes in the generation and
         stores the fitness for each chromosome in fitness_list.

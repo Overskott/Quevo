@@ -17,8 +17,6 @@ import math
 import random
 from typing import List
 
-import Quevo
-
 
 class Chromosome(object):
     """

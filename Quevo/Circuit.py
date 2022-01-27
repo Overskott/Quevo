@@ -46,7 +46,7 @@ class Circuit(object):
         """
         self.chromosome = chromosome
         self.circuit = QuantumCircuit(3, 1)
-        self.shots = 1000
+        self.shots = 10000
         self.STARTING_STATES = [[0, 0, 0],
                                 [0, 0, 1],
                                 [0, 1, 0],

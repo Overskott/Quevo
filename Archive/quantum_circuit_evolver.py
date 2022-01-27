@@ -294,7 +294,7 @@ class Generation(object):
     chromosome_list: List[int]
         List of chromosomes that habits the generation.
     fitness_list: List[float]
-        list of fitness scores corresponding to the chromosomes in chromosome_list.
+        list of fitness scores corresponding to the chromosomes in _chromosome_list.
     _chromosomes: int
         The number of chromosomes in the generation
     _gates: int

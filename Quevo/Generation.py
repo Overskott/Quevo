@@ -79,7 +79,6 @@ class Generation(object):
         self.set_parent_list()
         self._chromosome_list.clear()
         self._chromosome_list = self._parent_list.copy()
-        self.print_chromosomes()
 
         probability_list = self.find_fitness_proportionate_probabilities()
         probability_list.reverse()

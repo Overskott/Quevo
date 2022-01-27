@@ -13,10 +13,10 @@
 #    limitations under the License.
 
 import copy
+import math
 import random
 from typing import List
 
-import Quevo
 from .Chromosome import Chromosome
 from .Circuit import Circuit
 
@@ -30,8 +30,8 @@ class Generation(object):
     ----------
     _chromosome_list: List[int]
         List of chromosomes that habits the generation.
-    fitness_list: List[float]
-        list of fitness scores corresponding to the chromosomes in chromosome_list.
+    _parent_list: List[Chromosome]
+        list of the chromosomes that are chosen to be parents in the generation.
     _chromosomes: int
         The number of chromosomes in the generation
     _gates: int
@@ -51,7 +51,6 @@ class Generation(object):
         """
         self._chromosome_list: List[Chromosome] = []
         self._parent_list: List[Chromosome] = []
-        #self._selection_list: List[float] = []
         self._chromosomes: int = chromosomes
         self._gates: int = gates
 
@@ -65,27 +64,55 @@ class Generation(object):
             chromosome.generate_random_chromosome(self._gates)
             self._chromosome_list.append(chromosome)
 
-    def create_next_generation(self, probability=70):
+    def evolve_into_next_generation(self, probability=70):
+        """
+        Changes the chromosomes in the generation by "evolving" them is this manner:
+        The four best chromosomes are left unchanged as "elites". the rest of the chromosomes are
+        evolved with the mutate_chromosome() function.
 
-        next_gen = Generation(self._chromosomes, self._gates)
-        next_gen._chromosome_list = self._parent_list.copy()
+        Parameters
+        ----------
+        [Optional] probability (int)
+            The probability for the mutation to be replaced a random gate with a random new one. The chance of
+            mutating by changing a gate connection(s) is (1-probability).
+        """
+        self.set_parent_list()
+        self._chromosome_list.clear()
+        self._chromosome_list = self._parent_list.copy()
+        self.print_chromosomes()
 
-        while len(next_gen._chromosome_list) <= self._chromosomes:
-            mutated_chromosome = self.select_parent()
+        probability_list = self.find_fitness_proportionate_probabilities()
+        probability_list.reverse()
+
+        while len(self._chromosome_list) < self._chromosomes:
+
+            mutated_chromosome = self.select_parent(probability_list)
             mutated_chromosome.mutate_chromosome(probability)
-            next_gen._chromosome_list.append(mutated_chromosome)
 
-        return copy.deepcopy(next_gen)
+            self._chromosome_list.append(mutated_chromosome)
 
     def set_parent_list(self) -> None:
+        """Finds the four best chromosomes, and adds them to parent_list"""
         parent_list = self._chromosome_list.copy()
         parent_list.sort()
+        self._parent_list.clear()
         self._parent_list = parent_list[:4]
 
     def find_fitness_proportionate_probabilities(self) -> List[float]:
+        """
+        Calculates and returns the fitness proportionate probabilities for the four parent in the generation.
+
+        Returns
+        -------
+        selection_list (List[float])
+            A list describing the fitness proportionate probabilities for the four parent in the generation.
+        """
         fitness_sum = 0
         for parent in self._parent_list:
             fitness_sum = fitness_sum + parent.get_fitness_score()
+
+        if math.isinf(fitness_sum):  # KL-fitness might give inf as fitness
+            fitness_sum = 100
 
         selection_list = []
         for parent in self._parent_list:
@@ -93,15 +120,26 @@ class Generation(object):
             selection_list.append(selection_probability)
 
         selection_list.reverse()
-
         return selection_list
 
-    def select_parent(self) -> Chromosome:
-        total_probability = 0
+    def select_parent(self, probability_list) -> Chromosome:
+        """
+        Selects one of the four parents based on the fitness proportionate probabilities and returns that parent.
+
+        Parameters
+        ----------
+        probability_list
+            A list of the probabilities for parent selection. should add up to 1.
+
+        Returns
+        -------
+        Parent (Chromosome)
+            The chosen parent
+        """
         probability = random.uniform(0, 1)
+
+        total_probability = 0
         index = 0
-        probability_list = self.find_fitness_proportionate_probabilities()
-        probability_list.reverse()
 
         for prob in probability_list:
             total_probability = total_probability + prob
@@ -110,22 +148,6 @@ class Generation(object):
                 parent = self._parent_list[index]
                 return copy.deepcopy(parent)
             index = index + 1
-
-    def create_mutated_generation(self, probability=70) -> None:
-        """
-        Populates the generation with mutated chromosomes. The parent in included as the first member of the next
-        generation. The mutated chromosomes uses parameter parent as source for mutation.
-
-        Parameters
-        ----------
-        parent (Chromosome):
-            The chromosome all mutations will be generated from.
-        """
-
-        for i in range(self._chromosomes):
-            mutated_chromosome = copy.deepcopy(parent)
-            mutated_chromosome.mutate_chromosome(probability)
-            self._chromosome_list.append(mutated_chromosome)
 
     def run_generation_diff(self, desired_outcome: List[float]) -> None:
         """
@@ -143,8 +165,6 @@ class Generation(object):
             chromosome_fitness = abs(circuit.find_chromosome_fitness(desired_outcome))
             chromosome.set_fitness_score(chromosome_fitness)
 
-        self.set_parent_list()
-
     def run_generation_KL(self, desired_outcome: List[float]) -> None:
         """
         Runs the simulator for all the chromosomes in the generation and
@@ -160,7 +180,6 @@ class Generation(object):
             circuit = Circuit(chromosome)
             chromosome_fitness = abs(circuit.find_kullback_liebler_fitness(desired_outcome))
             chromosome.set_fitness_score(chromosome_fitness)
-        self.set_parent_list()
 
     def get_best_fitness(self):
         """Returns the fitness value for the best chromosome in the generation."""
@@ -196,6 +215,7 @@ class Generation(object):
         print('\n')
 
     def print_parents(self):
+        """Prints the generation's selected parents."""
         print("Parents: ")
         for parent in self._parent_list:
             print(parent)

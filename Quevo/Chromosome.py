@@ -271,6 +271,7 @@ class Chromosome(object):
         self._integer_list[random_index + 1] = random.randrange(0, 3)
         self._integer_list[random_index + 2] = random.randrange(0, 3)
 
+    @DeprecationWarning
     def _replace_with_random_chromosome(self) -> None:
         """Clears the chromosome and randomly generates a new _integer_list"""
         gates = int(self._length/3)

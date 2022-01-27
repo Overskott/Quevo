@@ -63,6 +63,13 @@ class Generation(object):
             chromosome.generate_random_chromosome(self._gates)
             self.chromosome_list.append(chromosome)
 
+    def create_generation(self, ):
+
+        pick_best_from_previous()
+        create_offspring
+        test_generation
+
+
     def create_mutated_generation(self, parent: Chromosome, probability=70) -> None:
         """
         Populates the generation with mutated chromosomes. The parent in included as the first member of the next
@@ -80,6 +87,9 @@ class Generation(object):
             mutated_chromosome = copy.deepcopy(parent)
             mutated_chromosome.mutate_chromosome(probability)
             self.chromosome_list.append(mutated_chromosome)
+
+    def
+
 
     def _fitness_proportionate_selection(self):
         # TODO finish this
@@ -105,11 +115,6 @@ class Generation(object):
                 return self.chromosome_list[index]
 
             index = index + 1
-
-
-
-
-
 
     def run_generation_diff(self, desired_outcome: List[float]) -> None:
         """

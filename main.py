@@ -15,14 +15,10 @@
 
 import Quevo
 
-# DONE: Documentation and comments
-# TODO: Error and exception handling
-# TODO: Unit testing
-
 if __name__ == '__main__':
     gates = 5
     chromosomes = 10
-    generations = 100
+    generations = 40
     gate_types = ['cx', 'x', 'h', 'rxx', 'rzz', 'swap', 'z', 'y', 'toffoli']
 
     desired_chance_of_one = [0.394221, 0.094721, 0.239492, 0.408455, 0.0, 0.730203, 0.915034, 1.0]
@@ -31,9 +27,10 @@ if __name__ == '__main__':
     # Generate initial generation of chromosomes
     init_gen = Quevo.Generation(10, gates)
     init_gen.create_initial_generation(gate_types)
-
     init_gen.run_generation_diff(desired_chance_of_one)
 
+    next_gen = init_gen.create_next_generation()
+    next_gen.print_chromosomes()
     print("Fitness for best chromosome: " + str(init_gen.get_best_fitness()) + "\n"
           + "Best chromosome: \n" + str(init_gen.get_best_chromosome()))
     print("\n")
@@ -43,19 +40,11 @@ if __name__ == '__main__':
     best_chromosome = current_chromosome
     final_fitness = init_gen.get_best_fitness()
 
-    final_fitness_list = [final_fitness]
-    random_list = [final_fitness]
-    list_10 = [final_fitness]
-    list_50 = [final_fitness]
-    list_70 = [final_fitness]
-
     # Mutation loop
-
     for gen in range(0, generations):
 
         # Mutate next generation of chromosomes
-        next_gen = Quevo.Generation(chromosomes, gates)
-        next_gen.create_mutated_generation(current_chromosome, 30)
+        next_gen = next_gen.create_next_generation()
 
         # Check every Chromosome's fitness
         next_gen.run_generation_KL(desired_chance_of_one)

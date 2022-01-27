@@ -17,6 +17,8 @@ import math
 import random
 from typing import List
 
+import Quevo
+
 
 class Chromosome(object):
     """
@@ -71,6 +73,7 @@ class Chromosome(object):
         """The Chromosome constructor"""
         self._integer_list: List[int] = []
         self._theta_list: List[float] = []
+        self._fitness_score: float = 0
         self._length: int = 0
         self._gate_types = gate_types
         self._gate_dict: dict = self._create_gate_dict()
@@ -87,6 +90,9 @@ class Chromosome(object):
         """Returns the iterable _integer_list"""
         yield from self._integer_list
 
+    def __lt__(self, other):
+        return self._fitness_score < other.get_fitness_score()
+
     def _create_gate_dict(self) -> dict:
         """Creates and return a dict of the _gate_types"""
         gate_dict: dict = {}
@@ -94,7 +100,7 @@ class Chromosome(object):
             gate_dict[str(j)] = self._gate_types[j]
         return gate_dict
 
-    def set_integer_list(self, integer_list: List[int]):
+    def set_integer_list(self, integer_list: List[int]) -> None:
         """
         Changes the chromosome's integer list to the one given as parameter.
 
@@ -111,7 +117,7 @@ class Chromosome(object):
         else:
             self._update_theta_list(old_integer_list, self._integer_list)
 
-    def get_gate_dict(self):
+    def get_gate_dict(self) -> dict:
         """Returns the chromosome's _gate_dict attribute"""
         return self._gate_dict
 
@@ -130,6 +136,12 @@ class Chromosome(object):
     def get_theta_list(self) -> List[float]:
         """Returns the list of angles in the circuit"""
         return self._theta_list
+
+    def set_fitness_score(self, score: float) -> None:
+        self._fitness_score = score
+
+    def get_fitness_score(self) -> float:
+        return self._fitness_score
 
     def _generate_theta_list(self) -> None:
         """Generates a list of angles based on the current list of integers"""

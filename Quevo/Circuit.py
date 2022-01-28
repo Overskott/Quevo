@@ -167,13 +167,8 @@ class Circuit(object):
             found_probabilities.append(self.find_init_state_probability(state))
             probabilities.append(desired_chance_of_one[i])
 
-        p = found_probabilities
-        q = probabilities
-
-        if p == 0:
-            p = 0.00001
-        if q == 0:
-            q = 0.00001
+        p = [x if x != 0 else 0.0001 for x in found_probabilities]
+        q = [x if x != 0 else 0.0001 for x in probabilities]
 
         d = sum(rel_entr(p, q))
 

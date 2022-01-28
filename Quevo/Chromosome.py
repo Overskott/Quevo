@@ -20,9 +20,9 @@ from typing import List
 
 class Chromosome(object):
     """
-    A class used to represent a quantum computer circuit as a list of integers.
+    A class used to represent a quantum computer _circuit as a list of integers.
 
-    The circuit is represented as a list
+    The _circuit is represented as a list
     of integers, where each gate is three successive integers i.e.:
 
     Three gates as list:
@@ -56,7 +56,7 @@ class Chromosome(object):
     Attributes
     ----------
     _integer_list: List[int]
-        List of integers representing the quantum circuit.
+        List of integers representing the quantum _circuit.
     _theta_list: List[float]
         A list of angle values for the gates. This list is the same length as number of gates (len(_integer_list) / 3).
     _length: int
@@ -71,6 +71,7 @@ class Chromosome(object):
         """The Chromosome constructor"""
         self._integer_list: List[int] = []
         self._theta_list: List[float] = []
+        self._fitness_score: float = 0
         self._length: int = 0
         self._gate_types = gate_types
         self._gate_dict: dict = self._create_gate_dict()
@@ -87,19 +88,23 @@ class Chromosome(object):
         """Returns the iterable _integer_list"""
         yield from self._integer_list
 
+    def __lt__(self, other):
+        return self._fitness_score < other.get_fitness_score()
+
     def _create_gate_dict(self) -> dict:
         """Creates and return a dict of the _gate_types"""
         gate_dict: dict = {}
         for j in range(0, len(self._gate_types)):
             gate_dict[str(j)] = self._gate_types[j]
+
         return gate_dict
 
-    def set_integer_list(self, integer_list: List[int]):
+    def set_integer_list(self, integer_list: List[int]) -> None:
         """
         Changes the chromosome's integer list to the one given as parameter.
 
         Parameters:
-           integer_list (List[int]): Quantum circuit integer representation as list.
+           integer_list (List[int]): Quantum _circuit integer representation as list.
         """
         old_integer_list = copy.copy(self._integer_list)
         self.clear()
@@ -111,12 +116,12 @@ class Chromosome(object):
         else:
             self._update_theta_list(old_integer_list, self._integer_list)
 
-    def get_gate_dict(self):
+    def get_gate_dict(self) -> dict:
         """Returns the chromosome's _gate_dict attribute"""
         return self._gate_dict
 
     def get_integer_list(self) -> List[int]:
-        """Returns the list of integers representing the circuit"""
+        """Returns the list of integers representing the _circuit"""
         return self._integer_list
 
     def _update_length(self) -> None:
@@ -128,8 +133,14 @@ class Chromosome(object):
         return self._length
 
     def get_theta_list(self) -> List[float]:
-        """Returns the list of angles in the circuit"""
+        """Returns the list of angles in the _circuit"""
         return self._theta_list
+
+    def set_fitness_score(self, score: float) -> None:
+        self._fitness_score = score
+
+    def get_fitness_score(self) -> float:
+        return self._fitness_score
 
     def _generate_theta_list(self) -> None:
         """Generates a list of angles based on the current list of integers"""
@@ -207,13 +218,13 @@ class Chromosome(object):
 
     def generate_random_chromosome(self, gates: int) -> None:
         """
-        Generates a random list of integers representing a quantum circuit with
+        Generates a random list of integers representing a quantum _circuit with
         the parameter "gates" number of gates
 
         Parameters
         ----------
         gates : int
-            The number of gates in the generated circuit representation.
+            The number of gates in the generated _circuit representation.
         """
 
         self.clear()
@@ -259,6 +270,7 @@ class Chromosome(object):
         self._integer_list[random_index + 1] = random.randrange(0, 3)
         self._integer_list[random_index + 2] = random.randrange(0, 3)
 
+    @DeprecationWarning
     def _replace_with_random_chromosome(self) -> None:
         """Clears the chromosome and randomly generates a new _integer_list"""
         gates = int(self._length/3)

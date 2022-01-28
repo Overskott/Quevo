@@ -10,9 +10,9 @@ from scipy.special import rel_entr
 
 class Chromosome(object):
     """
-    A class used to represent a quantum computer circuit as a list of integers.
+    A class used to represent a quantum computer _circuit as a list of integers.
 
-    The circuit is represented as a list
+    The _circuit is represented as a list
     of integers, where each gate is three successive integers i.e.:
 
     Three gates as list:
@@ -46,13 +46,13 @@ class Chromosome(object):
     Attributes
     ----------
     _integer_list: List[int]
-        List of integers representing the quantum circuit.
+        List of integers representing the quantum _circuit.
     _theta_list: List[float]
         A list of angle values for the gates. This list is the same length as number of gates (len(_integer_list) / 3).
     _length: int
         The number of integers in the integer representation
     _gate_types: List[str]
-        Experimental. Use to adjust how many types of quantum gates to include in the circuit during generation.
+        Experimental. Use to adjust how many types of quantum gates to include in the _circuit during generation.
     _gate_dict: dict
     """
 
@@ -88,7 +88,7 @@ class Chromosome(object):
         Changes the chromosome's integer list to the one given as parameter.
 
         Parameters:
-           integer_list (List[int]): Quantum circuit integer representation as list.
+           integer_list (List[int]): Quantum _circuit integer representation as list.
         """
         old_integer_list = copy.copy(self._integer_list)
         self.clear()
@@ -105,7 +105,7 @@ class Chromosome(object):
         return self._gate_dict
 
     def get_integer_list(self) -> List[int]:
-        """Returns the list of integers representing the circuit"""
+        """Returns the list of integers representing the _circuit"""
         return self._integer_list
 
     def _update_length(self) -> None:
@@ -117,7 +117,7 @@ class Chromosome(object):
         return self._length
 
     def get_theta_list(self) -> List[float]:
-        """Returns the list of angles in the circuit"""
+        """Returns the list of angles in the _circuit"""
         return self._theta_list
 
     def _generate_theta_list(self) -> None:
@@ -196,13 +196,13 @@ class Chromosome(object):
 
     def generate_random_chromosome(self, gates: int) -> None:
         """
-        Generates a random list of integers representing a quantum circuit with
+        Generates a random list of integers representing a quantum _circuit with
         the parameter "gates" number of gates
 
         Parameters
         ----------
         gates : int
-            The number of gates in the generated circuit representation.
+            The number of gates in the generated _circuit representation.
         """
 
         self.clear()
@@ -294,7 +294,7 @@ class Generation(object):
     chromosome_list: List[int]
         List of chromosomes that habits the generation.
     fitness_list: List[float]
-        list of fitness scores corresponding to the chromosomes in chromosome_list.
+        list of fitness scores corresponding to the chromosomes in _chromosome_list.
     _chromosomes: int
         The number of chromosomes in the generation
     _gates: int
@@ -425,12 +425,12 @@ class Circuit(object):
     Attributes
     ----------
     chromosome (Chromosome):
-        The integer string representation of the circuit.
-    circuit (Qiskit.QuantumCircuit):
-        Qiskit representation of the chromosome. A circuit that can be run and simulated.
-    shots (int):
-        Number of runs in the qiskit quantum circuit simulator.
-    STARTING_STATES (List[list]):
+        The integer string representation of the _circuit.
+    _circuit (Qiskit.QuantumCircuit):
+        Qiskit representation of the chromosome. A _circuit that can be run and simulated.
+    _SHOTS (int):
+        Number of runs in the qiskit quantum _circuit simulator.
+    _STARTING_STATES (List[list]):
         Possible cellular automata initial conditions for the 1D Von Neumann neighborhood.
     """
 
@@ -458,7 +458,7 @@ class Circuit(object):
         self.results = {}
 
     def __repr__(self):
-        """Returns a string visualizing the quantum circuit"""
+        """Returns a string visualizing the quantum _circuit"""
         return self.draw()
 
     def generate_circuit(self) -> None:
@@ -648,7 +648,7 @@ class Circuit(object):
 
     def initialize_initial_states(self, triplet: List[int]) -> None:
         """
-        Initializes a Cellular Automata (CA) state in the circuit.
+        Initializes a Cellular Automata (CA) state in the _circuit.
 
         Parameters
         ----------
@@ -666,7 +666,7 @@ class Circuit(object):
 
     def run_simulator(self) -> dict:
         """
-        Runs the circuit on the Qiskit AER simulator and returns the results as a dictionary.
+        Runs the _circuit on the Qiskit AER simulator and returns the results as a dictionary.
 
         Returns
         -------
@@ -682,7 +682,7 @@ class Circuit(object):
         return counts
 
     def draw(self) -> None:
-        """Prints a visual representation of the circuit"""
+        """Prints a visual representation of the _circuit"""
         print(self.circuit.draw(output='text'))
 
     def clear_circuit(self) -> None:

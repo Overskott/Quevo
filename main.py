@@ -15,12 +15,8 @@
 
 import Quevo
 
-# DONE: Documentation and comments
-# TODO: Error and exception handling
-# TODO: Unit testing
-
 if __name__ == '__main__':
-    gates = 5
+    gates = 20
     chromosomes = 10
     generations = 100
     gate_types = ['cx', 'x', 'h', 'rxx', 'rzz', 'swap', 'z', 'y', 'toffoli']
@@ -29,49 +25,40 @@ if __name__ == '__main__':
     # Probabilities from : https://link.springer.com/article/10.1007/s11571-020-09600-x
 
     # Generate initial generation of chromosomes
-    init_gen = Quevo.Generation(10, gates)
-    init_gen.create_initial_generation(gate_types)
+    generation = Quevo.Generation(10, gates)
+    generation.create_initial_generation(gate_types)
+    generation.run_generation_kl(desired_chance_of_one)
 
-    init_gen.run_generation_diff(desired_chance_of_one)
-
-    print("Fitness for best chromosome: " + str(init_gen.get_best_fitness()) + "\n"
-          + "Best chromosome: \n" + str(init_gen.get_best_chromosome()))
+    print("Fitness for best chromosome: " + str(generation.get_best_fitness()) + "\n"
+          + "Selected parents: \n")
+    generation.print_parents()
     print("\n")
 
     # Final value placeholders
-    current_chromosome = init_gen.get_best_chromosome()
+    current_chromosome = generation.get_best_chromosome()
     best_chromosome = current_chromosome
-    final_fitness = init_gen.get_best_fitness()
-
-    final_fitness_list = [final_fitness]
-    random_list = [final_fitness]
-    list_10 = [final_fitness]
-    list_50 = [final_fitness]
-    list_70 = [final_fitness]
+    final_fitness = generation.get_best_fitness()
 
     # Mutation loop
-
     for gen in range(0, generations):
 
         # Mutate next generation of chromosomes
-        next_gen = Quevo.Generation(chromosomes, gates)
-        next_gen.create_mutated_generation(current_chromosome, 30)
+        generation.evolve_into_next_generation()
 
         # Check every Chromosome's fitness
-        next_gen.run_generation_KL(desired_chance_of_one)
+        generation.run_generation_kl(desired_chance_of_one)
 
-        current_fitness = next_gen.get_best_fitness()
-        current_chromosome = next_gen.get_best_chromosome()
+        current_fitness = generation.get_best_fitness()
+        current_chromosome = generation.get_best_chromosome()
 
         # Print generation best result
         print("Fitness for best mutated chromosome in mutation " + str(gen + 1) + ": "
-              + str(current_fitness) + "\n"
-              + "Best mutated chromosome:\n" + str(next_gen.get_best_chromosome()))
+              + str(current_fitness) + "\n")
+        generation.print_parents()
         print("------------------------------------------------------------------------------")
         print("\n")
 
         # Check if there is a new_list best chromosome
-
         if final_fitness > abs(current_fitness):
             final_fitness = current_fitness
             best_chromosome = current_chromosome

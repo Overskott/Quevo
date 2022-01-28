@@ -20,9 +20,9 @@ from typing import List
 
 class Chromosome(object):
     """
-    A class used to represent a quantum computer circuit as a list of integers.
+    A class used to represent a quantum computer _circuit as a list of integers.
 
-    The circuit is represented as a list
+    The _circuit is represented as a list
     of integers, where each gate is three successive integers i.e.:
 
     Three gates as list:
@@ -56,7 +56,7 @@ class Chromosome(object):
     Attributes
     ----------
     _integer_list: List[int]
-        List of integers representing the quantum circuit.
+        List of integers representing the quantum _circuit.
     _theta_list: List[float]
         A list of angle values for the gates. This list is the same length as number of gates (len(_integer_list) / 3).
     _length: int
@@ -103,7 +103,7 @@ class Chromosome(object):
         Changes the chromosome's integer list to the one given as parameter.
 
         Parameters:
-           integer_list (List[int]): Quantum circuit integer representation as list.
+           integer_list (List[int]): Quantum _circuit integer representation as list.
         """
         old_integer_list = copy.copy(self._integer_list)
         self.clear()
@@ -120,7 +120,7 @@ class Chromosome(object):
         return self._gate_dict
 
     def get_integer_list(self) -> List[int]:
-        """Returns the list of integers representing the circuit"""
+        """Returns the list of integers representing the _circuit"""
         return self._integer_list
 
     def _update_length(self) -> None:
@@ -132,7 +132,7 @@ class Chromosome(object):
         return self._length
 
     def get_theta_list(self) -> List[float]:
-        """Returns the list of angles in the circuit"""
+        """Returns the list of angles in the _circuit"""
         return self._theta_list
 
     def set_fitness_score(self, score: float) -> None:
@@ -217,13 +217,13 @@ class Chromosome(object):
 
     def generate_random_chromosome(self, gates: int) -> None:
         """
-        Generates a random list of integers representing a quantum circuit with
+        Generates a random list of integers representing a quantum _circuit with
         the parameter "gates" number of gates
 
         Parameters
         ----------
         gates : int
-            The number of gates in the generated circuit representation.
+            The number of gates in the generated _circuit representation.
         """
 
         self.clear()

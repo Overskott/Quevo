@@ -58,7 +58,6 @@ if __name__ == '__main__':
         print("\n")
 
         # Check if there is a new_list best chromosome
-
         if final_fitness > abs(current_fitness):
             final_fitness = current_fitness
             best_chromosome = current_chromosome

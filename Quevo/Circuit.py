@@ -25,12 +25,12 @@ class Circuit(object):
     Attributes
     ----------
     chromosome (Chromosome):
-        The integer string representation of the circuit.
-    circuit (Qiskit.QuantumCircuit):
-        Qiskit representation of the chromosome. A circuit that can be run and simulated.
-    shots (int):
-        Number of runs in the qiskit quantum circuit simulator.
-    STARTING_STATES (List[list]):
+        The integer string representation of the _circuit.
+    _circuit (Qiskit.QuantumCircuit):
+        Qiskit representation of the chromosome. A _circuit that can be run and simulated.
+    _SHOTS (int):
+        Number of runs in the qiskit quantum _circuit simulator.
+    _STARTING_STATES (List[list]):
         Possible cellular automata initial conditions for the 1D Von Neumann neighborhood.
     """
 
@@ -45,20 +45,20 @@ class Circuit(object):
             The chromosome that describes the QuantumCircuit.
         """
         self.chromosome = chromosome
-        self.circuit = QuantumCircuit(3, 1)
-        self.shots = 10000
-        self.STARTING_STATES = [[0, 0, 0],
-                                [0, 0, 1],
-                                [0, 1, 0],
-                                [0, 1, 1],
-                                [1, 0, 0],
-                                [1, 0, 1],
-                                [1, 1, 0],
-                                [1, 1, 1]]
+        self._circuit = QuantumCircuit(3, 1)
+        self._SHOTS = 2048
+        self._STARTING_STATES = [[0, 0, 0],
+                                 [0, 0, 1],
+                                 [0, 1, 0],
+                                 [0, 1, 1],
+                                 [1, 0, 0],
+                                 [1, 0, 1],
+                                 [1, 1, 0],
+                                 [1, 1, 1]]
         self.results = {}
 
     def __repr__(self):
-        """Returns a string visualizing the quantum circuit"""
+        """Returns a string visualizing the quantum _circuit"""
         return self.draw()
 
     def generate_circuit(self) -> None:
@@ -79,39 +79,39 @@ class Circuit(object):
             gate = gate_dict[str(a)]
 
             if gate == 'h':
-                self.circuit.h(b)
+                self._circuit.h(b)
             elif gate == 'cx':
-                self.circuit.cx(b, c)
+                self._circuit.cx(b, c)
             elif gate == 'x':
-                self.circuit.x(b)
+                self._circuit.x(b)
             elif gate == 'swap':
-                self.circuit.swap(b, c)
+                self._circuit.swap(b, c)
             elif gate == 'rzz':
                 theta = self.chromosome.get_theta_list()[i]
-                self.circuit.rzz(theta=theta, qubit1=b, qubit2=c)
+                self._circuit.rzz(theta=theta, qubit1=b, qubit2=c)
             elif gate == 'rxx':
                 theta = self.chromosome.get_theta_list()[i]
-                self.circuit.rxx(theta=theta, qubit1=b, qubit2=c)
+                self._circuit.rxx(theta=theta, qubit1=b, qubit2=c)
             elif gate == 'toffoli':
                 target = b
                 if target == 1:
-                    self.circuit.toffoli(0, 2, target)
+                    self._circuit.toffoli(0, 2, target)
                 else:
-                    self.circuit.toffoli(abs(target - 1), abs(target - 2), target)
+                    self._circuit.toffoli(abs(target - 1), abs(target - 2), target)
             elif gate == 'y':
-                self.circuit.y(b)
+                self._circuit.y(b)
             elif gate == 'z':
-                self.circuit.z(b)
+                self._circuit.z(b)
             else:
                 print(gate + " is not a valid gate!")
 
-        self.circuit.measure(0, 0)
+        self._circuit.measure(0, 0)
 
     def calculate_probability_of_one(self) -> float:
         """Returns the measured chance of one after simulation"""
         counts = self.run_simulator()
         if '1' in counts:
-            chance_of_one = counts['1'] / self.shots
+            chance_of_one = counts['1'] / self._SHOTS
         else:
             chance_of_one = 0.0
 
@@ -133,9 +133,9 @@ class Circuit(object):
             The chromosome fitness score.
         """
         fitness = 0
-        for i in range(0, len(self.STARTING_STATES)):
+        for i in range(0, len(self._STARTING_STATES)):
 
-            state = self.STARTING_STATES[i]
+            state = self._STARTING_STATES[i]
             probability = desired_chance_of_one[i]
             found_probability = self.find_init_state_probability(state)
             difference = abs(probability - found_probability)
@@ -161,9 +161,9 @@ class Circuit(object):
         fitness = 0
         probabilities = []
         found_probabilities = []
-        for i in range(0, len(self.STARTING_STATES)):
+        for i in range(0, len(self._STARTING_STATES)):
 
-            state = self.STARTING_STATES[i]
+            state = self._STARTING_STATES[i]
             found_probabilities.append(self.find_init_state_probability(state))
             probabilities.append(desired_chance_of_one[i])
 
@@ -206,19 +206,18 @@ class Circuit(object):
         """Prints a table of the results from a run of the chromosome"""
         print("Initial State | Desired outcome | Actual outcome  | Difference")
         total_diff = 0
-        for i in range(0, len(self.STARTING_STATES)):
-            state = self.STARTING_STATES[i]
+        for i in range(0, len(self._STARTING_STATES)):
+            state = self._STARTING_STATES[i]
             probability = desired_chance_of_one[i]
 
             found_probability = self.find_init_state_probability(state)
-            # found_probability = self.find_kullback_liebler_fitness(state)
             difference = abs(found_probability - probability)
             total_diff = total_diff + difference
             desired_format = "{:.4f}".format(desired_chance_of_one[i])
             chance_format = "{:.4f}".format(found_probability)
             diff_format = "{:.4f}".format(difference)
 
-            print(str(self.STARTING_STATES[i]) + "           "
+            print(str(self._STARTING_STATES[i]) + "           "
                   + desired_format + "           "
                   + chance_format + "           "
                   + diff_format)
@@ -227,8 +226,8 @@ class Circuit(object):
 
     def get_total_difference(self, desired_chance_of_one: List[float]):
         total_diff = 0
-        for i in range(0, len(self.STARTING_STATES)):
-            state = self.STARTING_STATES[i]
+        for i in range(0, len(self._STARTING_STATES)):
+            state = self._STARTING_STATES[i]
             probability = desired_chance_of_one[i]
 
             found_probability = self.find_init_state_probability(state)
@@ -240,7 +239,7 @@ class Circuit(object):
     def print_counts(self):
         """Prints the counts result from simulation"""
         index = 0
-        for triplet in self.STARTING_STATES:
+        for triplet in self._STARTING_STATES:
             self.clear_circuit()
             self.initialize_initial_states(triplet)
             self.generate_circuit()
@@ -249,7 +248,7 @@ class Circuit(object):
 
     def initialize_initial_states(self, triplet: List[int]) -> None:
         """
-        Initializes a Cellular Automata (CA) state in the circuit.
+        Initializes a Cellular Automata (CA) state in the _circuit.
 
         Parameters
         ----------
@@ -259,15 +258,15 @@ class Circuit(object):
         """
 
         if triplet[0] == 1:
-            self.circuit.x(0)
+            self._circuit.x(0)
         if triplet[1] == 1:
-            self.circuit.x(1)
+            self._circuit.x(1)
         if triplet[2] == 1:
-            self.circuit.x(2)
+            self._circuit.x(2)
 
     def run_simulator(self) -> dict:
         """
-        Runs the circuit on the Qiskit AER simulator and returns the results as a dictionary.
+        Runs the _circuit on the Qiskit AER simulator and returns the results as a dictionary.
 
         Returns
         -------
@@ -277,15 +276,15 @@ class Circuit(object):
         aer_sim = Aer.get_backend('aer_simulator')
         # aer_sim = Aer.get_backend('aer_simulator_density_matrix')
         # aer_sim = Aer.get_backend('aer_simulator_stabilizer')
-        quantum_circuit = assemble(self.circuit, shots=self.shots)
+        quantum_circuit = assemble(self._circuit, shots=self._SHOTS)
         job = aer_sim.run(quantum_circuit)
         counts = job.result().get_counts()
         return counts
 
     def draw(self) -> None:
-        """Prints a visual representation of the circuit"""
-        print(self.circuit.draw(output='text'))
+        """Prints a visual representation of the _circuit"""
+        print(self._circuit.draw(output='text'))
 
     def clear_circuit(self) -> None:
         """Clears the Qiskit QuantumCircuit for all gates"""
-        self.circuit.data.clear()
+        self._circuit.data.clear()

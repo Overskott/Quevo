@@ -64,7 +64,7 @@ class Generation(object):
             chromosome.generate_random_chromosome(self._gates)
             self._chromosome_list.append(chromosome)
 
-    def evolve_into_next_generation(self, probability=70):
+    def evolve_into_next_generation(self, probability=30):
         """
         Changes the chromosomes in the generation by "evolving" them is this manner:
         The four best chromosomes are left unchanged as "elites". the rest of the chromosomes are

@@ -17,7 +17,7 @@ import Quevo
 
 if __name__ == '__main__':
     gates = 20
-    chromosomes = 10
+    chromosomes = 30
     generations = 100
     gate_types = ['cx', 'x', 'h', 'rxx', 'rzz', 'swap', 'z', 'y', 'toffoli']
 
@@ -44,7 +44,6 @@ if __name__ == '__main__':
 
         # Mutate next generation of chromosomes
         generation.evolve_into_next_generation()
-
         # Check every Chromosome's fitness
         generation.run_generation_kl(desired_chance_of_one)
 

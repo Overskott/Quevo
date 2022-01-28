@@ -215,10 +215,13 @@ class Generation(object):
 
     def print_parents(self):
         """Prints the generation's selected parents."""
-        print("Parents: ")
-        for parent in self._parent_list:
-            print(parent)
-        print('\n')
+        if not self._parent_list:
+            print("No parents selected")
+        else:
+            print("Parents: ")
+            for parent in self._parent_list:
+                print(parent)
+            print('\n')
 
     def print_circuits(self):
         """Prints all the generation's chromosome's circuits."""

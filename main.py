@@ -17,7 +17,7 @@ import Quevo
 
 if __name__ == '__main__':
     gates = 20
-    chromosomes = 30
+    chromosomes = 10
     generations = 100
     gate_types = ['cx', 'x', 'h', 'rxx', 'rzz', 'swap', 'z', 'y', 'toffoli']
 

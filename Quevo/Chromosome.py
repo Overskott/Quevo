@@ -96,6 +96,7 @@ class Chromosome(object):
         gate_dict: dict = {}
         for j in range(0, len(self._gate_types)):
             gate_dict[str(j)] = self._gate_types[j]
+
         return gate_dict
 
     def set_integer_list(self, integer_list: List[int]) -> None:

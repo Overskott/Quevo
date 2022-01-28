@@ -16,9 +16,9 @@
 import Quevo
 
 if __name__ == '__main__':
-    gates = 10
+    gates = 20
     chromosomes = 30
-    generations = 50
+    generations = 100
     gate_types = ['cx', 'x', 'h', 'rxx', 'rzz', 'swap', 'z', 'y', 'toffoli']
 
     desired_chance_of_one = [0.394221, 0.094721, 0.239492, 0.408455, 0.0, 0.730203, 0.915034, 1.0]
@@ -27,10 +27,11 @@ if __name__ == '__main__':
     # Generate initial generation of chromosomes
     generation = Quevo.Generation(10, gates)
     generation.create_initial_generation(gate_types)
-    generation.run_generation_diff(desired_chance_of_one)
+    generation.run_generation_kl(desired_chance_of_one)
 
     print("Fitness for best chromosome: " + str(generation.get_best_fitness()) + "\n"
-          + "Best chromosome: \n" + str(generation.get_best_chromosome()))
+          + "Selected parents: \n")
+    generation.print_parents()
     print("\n")
 
     # Final value placeholders
@@ -45,15 +46,15 @@ if __name__ == '__main__':
         generation.evolve_into_next_generation()
 
         # Check every Chromosome's fitness
-        generation.run_generation_diff(desired_chance_of_one)
+        generation.run_generation_kl(desired_chance_of_one)
 
         current_fitness = generation.get_best_fitness()
         current_chromosome = generation.get_best_chromosome()
 
         # Print generation best result
         print("Fitness for best mutated chromosome in mutation " + str(gen + 1) + ": "
-              + str(current_fitness) + "\n"
-              + "Best mutated chromosome:\n" + str(generation.get_best_chromosome()))
+              + str(current_fitness) + "\n")
+        generation.print_parents()
         print("------------------------------------------------------------------------------")
         print("\n")
 
